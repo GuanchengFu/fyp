@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import AbstractUser, User
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth import get_user_model
+from django.conf import settings
 #Later on, change the store position of the files so that it looks the same as the way user stores it.
 
 #Further improvement may be found at:
@@ -39,13 +41,15 @@ class Folder(models.Model):
 		verbose_name_plural = "Folders"
 
 
-"""
+
 class User(AbstractUser):
+        #Define the additional information.
+	pass
 
 	class Meta:
 		unique_together = ('email',)
 
-"""
+
 
 """A model for the files uploaded by the user.
 Possible reference for DateField:
@@ -82,7 +86,7 @@ A model which is used to model the professor.
 """
 class UserProfessor(models.Model):
 
-	user = models.OneToOneField(User, on_delete=models.CASCADE)
+	user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
 
 	#picture will be uploaded to MEDIA_ROOT/profile_images
 	picture = models.ImageField(upload_to='professor_images', blank = True)
@@ -96,7 +100,7 @@ class UserProfessor(models.Model):
 their account."""
 class UserCandidate(models.Model):
 
-	user = models.OneToOneField(User, on_delete=models.CASCADE)
+	user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
 
 	professor = models.ForeignKey(UserProfessor, on_delete = models.CASCADE, related_name = "students", null = False)
 
