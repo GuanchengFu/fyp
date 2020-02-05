@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+<head>
+	<title>fyp</title>
+</head>
+<body>
+	<h1>Register page for fyp</h1>
+	{% if registered %}
+		<strong>Thank you for registering!</strong>
+		<!-- Problem: should redirect to the personal page. -->
+	{% else %}
+		<strong>Register here!</strong><br />
+		<!-- The data is sent back to the  register page with the post method. -->
+		<form id="user_form" method="post" action="{% url 'core:register'%}"
+			enctype="multipart/form-data">
+			{% csrf_token %}
+
+			{{ user_form.as_p}}
+
+			<fieldset>
+				<legend>
+					Choose your identity:
+				</legend>
+				<input type="radio" name="identity" value="professor" checked> Professor<br>
+				<input type="radio" name="identity" value="candidate"> Candidate<br>
+			</fieldset>
+
+			{{ profile_form.as_p}}	
+
+
+			<input type="submit" name="submit" value="Register" />	
+
+		</form>
+		{% endif %}
+</body>
+</html>

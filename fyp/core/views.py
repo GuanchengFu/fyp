@@ -1,7 +1,56 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from core.forms import UserForm, UserProfessorForm, UserCandidateForm
 
-
-
+"""Index page for the website"""
 def index(request):
-    return HttpResponse("Later change this webpage to include the link for login and registration.")
+    return render(request, 'core/index.html')
+
+
+
+def about(request):
+    return HttpResponse("Write something about the website later.")
+
+
+"""Website for registering the user."""
+def register(request):
+	#A variable to tell the template whether the registration was successful or not.
+	registered = False
+
+	if request.method == 'POST':
+		user_form = UserForm(data = request.POST)
+		"""
+		problem
+		we should check the identity of the user before this step.
+		"""
+		profile_form = UserProfessorForm(data = request.POST)
+
+		if user_form.is_valid() and profile_form.is_valid():
+
+			user = user_form.save()
+
+			user.set_password(user.password)
+			user.save()
+
+			profile = profile_form.save(commit=False)
+			profile.user = user
+
+			if 'picture' in request.FILES:
+				profile.picture = request.FILES['picture']
+
+			profile.save()
+
+			registered = True
+
+		else:
+			print(user_form.errors, profile_form.errors)
+	else:
+
+		user_form = UserForm()
+		profile_form = UserProfessorForm()
+
+	return render(request,
+		'core/register.html',
+		{'user_form': user_form,
+		'profile_form': UserProfessorForm,
+		'registered': registered})
