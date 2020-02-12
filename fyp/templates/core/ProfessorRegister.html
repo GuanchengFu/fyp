@@ -1,0 +1,33 @@
+{% extends 'core/base.html' %}
+{% load staticfiles %}
+
+
+{% block title_block %}
+    Professor Register
+{% endblock %}
+
+{% block body_block %}
+    <h1>Register page for the professor</h1>
+
+	{% if registered %}
+		<strong>Thank you for registering as an professor!</strong>
+
+	{% else %}
+		<strong>Register here!</strong>
+		<form id="user_form" method="post" action="{% url 'core:proRegister' %}"
+			enctype="multipart/form-data">
+
+			{% csrf_token %}
+
+
+			{{ user_form.as_p }}
+
+			{{ profile_form.as_p }}
+
+			<input type="submit" name="submit" value="Register" />
+
+		</form>
+	{% endif %}
+
+{% endblock %}
+
