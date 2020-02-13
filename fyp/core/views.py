@@ -86,7 +86,7 @@ def professorRegister(request):
         profile_form = UserProfessorForm()
 
     return render(request,
-                  'core/ProfessorRegister.html',
+                  'core/professor_registration.html',
                   {'user_form': user_form,
                    'profile_form': profile_form,
                    'registered': registered})
@@ -125,7 +125,7 @@ def candidateRegister(request):
         profile_form = UserCandidateForm()
 
     return render(request,
-                  'core/CandidateRegister.html',
+                  'core/candidate_registration.html',
                   {'user_form': user_form,
                    'profile_form': profile_form,
                    'registered': registered})
@@ -134,3 +134,14 @@ def candidateRegister(request):
 def user_logout(request):
     logout(request)
     return redirect(reverse('core:index'))
+
+
+"""
+This function will present the user information and files.
+for reference:https://stackoverflow.com/questions/32033121/display-uploaded-files-django
+显示pid？ 显示每个用户独一无二的一个数字
+tango_with_django 的第101页
+"""
+@login_required
+def show_profile(request):
+    return None
