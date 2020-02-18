@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
+from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 #Later on, change the store position of the files so that it looks the same as the way user stores it.
 
@@ -29,10 +30,10 @@ related to the user or the folder.
 """
 class Folder(models.Model):
 	#user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='userfolders')
-	folder = models.ForeignKey('self', on_delete = models.CASCADE, related_name = 'folders', null = True)
+	folder = models.ForeignKey('self', on_delete=models.CASCADE, related_name='folders', null = True)
 
 	#The name may need to be checked to see whether the naming convention is complied.
-	name = models.CharField(max_length = 70)
+	name = models.CharField(max_length=70)
 
 	def __str__(self):
 		return self.name
@@ -41,10 +42,13 @@ class Folder(models.Model):
 		verbose_name_plural = "Folders"
 
 
-
 class User(AbstractUser):
-        #Define the additional information.
-	pass
+	# assDefine the additional information.
+	USERNAME_FIELD = 'email'
+	email = models.EmailField(_('email address'), unique=True)
+	REQUIRED_FIELDS = ['username', 'password']
+	is_professor = models.BooleanField('professor status', default=False)
+	is_candidate = models.BooleanField('candidate status', default=False)
 
 	class Meta:
 		unique_together = ('email',)
@@ -58,16 +62,15 @@ https://stackoverflow.com/questions/1737017/django-auto-now-and-auto-now-add
 There should not have two files with the same name in the folder.
 """
 class File(models.Model):
-	#user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='userfiles')
-	folder = models.ForeignKey(Folder, on_delete = models.CASCADE, related_name = 'files', null = True)
+	# user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='userfiles')
+	folder = models.ForeignKey(Folder, on_delete = models.CASCADE, related_name='files', null = True)
 	description = models.CharField(max_length = 70)
-	#location =  models.FileField(upload_to=file_location_path, null=True, blank=True)
+	# location =  models.FileField(upload_to=file_location_path, null=True, blank=True)
 	created = models.DateTimeField(editable=False, null = True)
-	modified = models.DateTimeField(null = True)
+	modified = models.DateTimeField(null=True)
 
-	
 	def save(self, *args, **kwargs):
-		#if the object is newly created:
+		# if the object is newly created:
 		if not self.id:
 			self.created = timezone.now()
 		self.modified = timezone.now()
@@ -80,16 +83,19 @@ class File(models.Model):
 		return self.description
 
 
+"""
+A model which is used to model the professor."""
 
-"""
-A model which is used to model the professor.
-"""
+
+
+
 class UserProfessor(models.Model):
 
-	user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+	# To get the UserProfessor, use the user.profile to get it.
+	user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, related_name='professor')
 
-	#picture will be uploaded to MEDIA_ROOT/profile_images
-	picture = models.ImageField(upload_to='professor_images', blank = True)
+	# picture will be uploaded to MEDIA_ROOT/profile_images
+	picture = models.ImageField(upload_to='professor_images', blank=True)
 
 	def __str__(self):
 		return self.user.username
@@ -100,13 +106,13 @@ class UserProfessor(models.Model):
 their account."""
 class UserCandidate(models.Model):
 
-	user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+	user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, related_name='candidate')
 
-	professor = models.ForeignKey(UserProfessor, on_delete = models.CASCADE, related_name = "students", null = False)
+	professor = models.ForeignKey(UserProfessor, on_delete=models.CASCADE, related_name="students", null=False)
 
-	picture = models.ImageField(upload_to='candidate_images', blank = True)
-
+	picture = models.ImageField(upload_to='candidate_images', blank=True)
 
 	def __str__(self):
 		return self.user.username
+
 

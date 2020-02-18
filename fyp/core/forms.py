@@ -4,7 +4,6 @@ from django.contrib.auth import get_user_model
 from core.models import UserProfessor, UserCandidate, User
 
 
-
 class UserForm(forms.ModelForm):
 	"""Although the user class in django has the 
 	password attribute.
@@ -14,10 +13,13 @@ class UserForm(forms.ModelForm):
 		model = get_user_model()
 		fields = ('username', 'email', 'password', 'first_name', 'last_name')
 
+
 IDENTITY_CHOICES = [
 	('professor', 'Professor'),
 	('candidate', 'Candidate'),
 ]
+
+
 """
 This form includes an additional attribute known as:
 @arg identity to help the server decide the identity of the user.
@@ -50,9 +52,6 @@ class UserCandidateForm(forms.ModelForm):
 		fields = ('picture', 'professor',)
 
 
-
-
-""""""
 class IdentityForm(forms.Form):
 	identity = forms.CharField(label = 'What is your identity?', 
 		widget = forms.Select(choices = IDENTITY_CHOICES))

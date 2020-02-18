@@ -1,40 +1,25 @@
-{% extends 'core/base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My PhD - Log in</title>
+</head>
 
-{% load staticfiles %}
-
-
-{% block title_block %}
-    index page
-{% endblock %}
-
-
-{% block body_block %}
-    <div>
-        <strong>Login Here!</strong>
-        <form id="login_form" method="post" action="{% url 'core:index' %}">
+<body>
+<div>
+    <strong>Login Here!</strong>
+    <form id="login_form" method="post" action="{% url 'core:index' %}">
         {% csrf_token %}
-        Username: <input type="text" name="username" value="" size="50" />
+        Email: <input type="text" name="email" value="" size="50" />
         <br />
         Password: <input type="password" name="password" value="" size="50" />
         <br />
         <input type="submit" value="submit" />
-        </form>
-    </div>
+    </form>
 
-	<div>
-		<h2>Possible reference:</h2>
-		<a href="https://www.w3schools.com/howto/howto_css_login_form.asp">Login study</a>
-		<a href="https://www.quora.com/?time=1580298360620354&uid=628431023&unh=ab05b2cedfdf43c52c5c325ba2f016bb">Possible result</a>
-	</div>
-
-
-	<div>
-		<strong>Register Here!</strong>
-		<form id="identity_form" method = "post" action="{% url 'core:redirect' %}"
-			enctype="multipart/form-data">
-		{% csrf_token %}
-		{{ identity_form.as_p}}
-		<input type="submit" name="submit" value="next step">
-		</form>
-	</div>
-{% endblock %}
+    Forget password? <br/>
+    Not a member?
+    <a href="{% url 'core:register' %}">Register here!</a>
+</div>
+</body>
+</html>
