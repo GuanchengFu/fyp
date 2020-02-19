@@ -12,5 +12,6 @@ urlpatterns = [
 	path('professorregister/', views.professorRegister, name='proRegister'),
 	path('candidateregister/', views.candidateRegister, name='canRegister'),
 	path('logout/', views.user_logout, name='logout'),
-	path('dashboard', views.show_dashboard, name='dashboard'),
+	path('dashboard/', views.show_dashboard, name='dashboard'),
+	path('dashboard/uploadfile/', views.upload_file, name='uploadfile'),
 ]

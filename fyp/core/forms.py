@@ -1,7 +1,13 @@
 from django import forms
 #from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
-from core.models import UserProfessor, UserCandidate, User
+from core.models import UserProfessor, UserCandidate, User, File, Folder
+
+
+class FileForm(forms.ModelForm):
+	class Meta:
+		model = File
+		fields = ('description', 'file', )
 
 
 class UserForm(forms.ModelForm):
@@ -53,7 +59,7 @@ class UserCandidateForm(forms.ModelForm):
 
 
 class IdentityForm(forms.Form):
-	identity = forms.CharField(label = 'What is your identity?', 
+	identity = forms.CharField(label = 'What is your identity?',
 		widget = forms.Select(choices = IDENTITY_CHOICES))
 
 

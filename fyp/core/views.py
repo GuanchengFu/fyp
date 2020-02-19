@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-from core.forms import UserForm, UserProfessorForm, UserCandidateForm, IdentityForm, DisplayIdentityForm
+from core.forms import UserForm, UserProfessorForm, UserCandidateForm, IdentityForm, FileForm
 
 """Index page for the website"""
 
@@ -34,7 +34,7 @@ def index(request):
 
 
 def about(request):
-    return HttpResponse("Write something about the website later.")
+    return render(request, 'core/about.html')
 
 
 def redirected(request):
@@ -153,12 +153,34 @@ redirect to the user based on the id acquired from user.id?
 @login_required
 def show_dashboard(request):
     if request.method == 'GET':
-        content = {}
+        context = {}
         # The user should have logged in based on the decorator @login_required
         user = request.user
+        context['user'] = user
         if user.is_professor:
-            return HttpResponse("Try this one, professor!")
+            profile = user.professor
+            context['profile'] = profile
+            return render(request, 'core/dashboard.html', context)
         elif user.is_candidate:
-            return HttpResponse("Candidate, this really works!")
+            profile = user.candidate
+            context['profile'] = profile
+            return render(request, 'core/dashboard.html', context)
         else:
             return HttpResponse("You are a staff of this website, try using this site for logging in.")
+
+@login_required
+def upload_file(request):
+    if request.method == "POST":
+        form = FileForm(request.POST, request.FILES)
+        if form.is_valid():
+            file = form.save(commit=False)
+            file.user = request.user
+            file.save()
+            return redirect('core:dashboard')
+        else:
+            print(form.errors)
+    else:
+        form = FileForm()
+        return render(request, 'core/upload_file.html', {
+            'form': form,
+        })

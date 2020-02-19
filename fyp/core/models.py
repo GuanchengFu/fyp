@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
@@ -23,16 +24,46 @@ def file_location_path(instance, filename):
 	return 'client_files/{0}/{1}/{2}'.format(instance.user.id, datetime.datetime.now(datetime.timezone.utc).date().strftime("%Y/%m/%d"), filename)
 
 
+""".
+Possible reference for DateField:
+https://stackoverflow.com/questions/1737017/django-auto-now-and-auto-now-add
+
+There should not have two files with the same name in the folder.
+"""
+
+
+class File(models.Model):
+	user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='userfiles')
+	folder = models.ForeignKey('Folder', on_delete=models.CASCADE, related_name='files', null=True)
+	description = models.CharField(max_length=70)
+	file = models.FileField(upload_to='test/files/', null=False, blank=True)
+	created = models.DateTimeField(editable=False, null=True)
+	modified = models.DateTimeField(null=True)
+
+	def save(self, *args, **kwargs):
+		# if the object is newly created:
+		if not self.id:
+			self.created = timezone.now()
+		self.modified = timezone.now()
+		super().save(*args, **kwargs)
+
+	class Meta:
+		verbose_name_plural = "Files"
+
+	def __str__(self):
+		return self.description
+
+
 """
 Folder is a model for the folders stored by the user.
 The related name attribute is a reference hold by the foreign key to access all the folders
 related to the user or the folder.
 """
 class Folder(models.Model):
-	#user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='userfolders')
-	folder = models.ForeignKey('self', on_delete=models.CASCADE, related_name='folders', null = True)
+	# user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='userfolders')
+	folder = models.ForeignKey('self', on_delete=models.CASCADE, related_name='folders', null=True)
 
-	#The name may need to be checked to see whether the naming convention is complied.
+	# The name may need to be checked to see whether the naming convention is complied.
 	name = models.CharField(max_length=70)
 
 	def __str__(self):
@@ -55,32 +86,6 @@ class User(AbstractUser):
 
 
 
-"""A model for the files uploaded by the user.
-Possible reference for DateField:
-https://stackoverflow.com/questions/1737017/django-auto-now-and-auto-now-add
-
-There should not have two files with the same name in the folder.
-"""
-class File(models.Model):
-	# user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='userfiles')
-	folder = models.ForeignKey(Folder, on_delete = models.CASCADE, related_name='files', null = True)
-	description = models.CharField(max_length = 70)
-	# location =  models.FileField(upload_to=file_location_path, null=True, blank=True)
-	created = models.DateTimeField(editable=False, null = True)
-	modified = models.DateTimeField(null=True)
-
-	def save(self, *args, **kwargs):
-		# if the object is newly created:
-		if not self.id:
-			self.created = timezone.now()
-		self.modified = timezone.now()
-		super().save(*args, **kwargs)
-	
-	class Meta:
-		verbose_name_plural = "Files"
-
-	def __str__(self):
-		return self.description
 
 
 """

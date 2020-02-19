@@ -1,0 +1,18 @@
+{% extends 'core/base.html' %}
+{% load staticfiles %}
+
+{% block title_block %}
+    Dashboard
+{% endblock %}
+
+{% block body_block %}
+    <div class="jumbotron">
+		<h1 class="display-3">My PhD</h1>
+		{% if user.is_authenticated %}
+			<p class="lead">hey there {{ user.username }}</p>
+		{% else %}
+			<p class="lead">hey there partner! </p>
+		{% endif %}
+
+ 	</div>
+{% endblock %}
