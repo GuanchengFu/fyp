@@ -60,33 +60,105 @@
 </header>
 
  <div class="container-fluid">
- <div class="row">
- <nav class="col-md-2 d-none d-md-block bg-light sidebar">
- <div class="sidebar-sticky">
-     {% block sidebar_block %}
-         {% if user.is_authenticated %}
-
+    <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                {% block sidebar_block %}
+                    {% if user.is_authenticated %}
+                        <ul class="nav flex-column">
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'core:uploadfile' %}">
-              <span data-feather="file"></span>
-              Upload file
+            <a class="nav-link active" href="#">
+              <span data-feather="home"></span>
+              Dashboard <span class="sr-only">(current)</span>
             </a>
           </li>
-         {% endif %}
-     {% endblock %}
- </div>
- </nav>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <span data-feather="file"></span>
+              Orders
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <span data-feather="shopping-cart"></span>
+              Products
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <span data-feather="users"></span>
+              Customers
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <span data-feather="bar-chart-2"></span>
+              Reports
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <span data-feather="layers"></span>
+              Integrations
+            </a>
+          </li>
+        </ul>
+
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+          <span>Repository</span>
+          <a class="d-flex align-items-center text-muted" href="#">
+            <span data-feather="plus-circle"></span>
+          </a>
+        </h6>
+        <ul class="nav flex-column mb-2">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'core:uploadfile' %}">
+              <span data-feather="file-text"></span>
+              Upload files
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <span data-feather="file-text"></span>
+              Last quarter
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <span data-feather="file-text"></span>
+              Social engagement
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <span data-feather="file-text"></span>
+              Year-end sale
+            </a>
+          </li>
+        </ul>
+                    {% endif %}
+                {% endblock %}
+            </div>
+        </nav>
+
  <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
  {% block body_block %}
+
+
  {% endblock %}
- <footer>
- <p class="float-right"><a href="#">Back to top</a></p>
- <p>&copy; 2019 Tango With Django 2 &middot; <a href="#">Privacy</a> &middot;
- <a href="#">Terms</a></p>
- </footer>
- </main>
+         <footer>
+         <p class="float-right"><a href="#">Back to top</a></p>
+        <p>&copy; 2019 Tango With Django 2 &middot; <a href="#">Privacy</a> &middot;
+        <a href="#">Terms</a></p>
+        </footer>
+        </main>
+    </div>
  </div>
- </div>
+
+
+
+
+
  <!-- Bootstrap core JavaScript -->
  <!-- Placed at the end of the document so the pages load faster -->
  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>

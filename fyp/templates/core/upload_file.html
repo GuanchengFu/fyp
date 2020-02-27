@@ -1,5 +1,7 @@
 {% extends 'core/base.html' %}
 {% load staticfiles %}
+{% load crispy_forms_tags %}
+
 
 {% block title_block %}
     Upload files
@@ -10,7 +12,7 @@
     Upload files here.
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form|crispy }}
     <button type="submit" class="btn btn-primary">Upload file</button>
     </form>
 {% endblock %}

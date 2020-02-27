@@ -4,33 +4,35 @@ from django.urls import reverse
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-from core.forms import UserForm, UserProfessorForm, UserCandidateForm, IdentityForm, FileForm
+from core.forms import UserForm, UserProfessorForm, UserCandidateForm, IdentityForm, FileForm, editFileForm,sendMessageForm
+from core.models import File
 
 """Index page for the website"""
 
 
 def index(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-
-        user = authenticate(email=email, password=password)
-
-        if user:
-            if user.is_active:
-
-                login(request, user)
-                return redirect('core:dashboard')
-            else:
-                return HttpResponse("Your account is disabled.")
-        else:
-            # Bad login details are provided.  The user cannot login.
-            print("Invalid login details: {0}, {1}".format(email, password))
-            return HttpResponse("Invalid login details supplied.")
+    if request.user.is_authenticated:
+        return redirect('core:dashboard')
     else:
-        # identity_form = IdentityForm()
-        # context_dictionary = {'identity_form': identity_form}
-        return render(request, 'core/index-new-new.html')
+        if request.method == 'POST':
+            email = request.POST.get('email')
+            password = request.POST.get('password')
+
+            user = authenticate(email=email, password=password)
+
+            if user:
+                if user.is_active:
+
+                    login(request, user)
+                    return redirect('core:dashboard')
+                else:
+                    return HttpResponse("Your account is disabled.")
+            else:
+                # Bad login details are provided.  The user cannot login.
+                print("Invalid login details: {0}, {1}".format(email, password))
+                return HttpResponse("Invalid login details supplied.")
+        else:
+            return render(request, 'core/index-new-new.html')
 
 
 def about(request):
@@ -157,9 +159,11 @@ def show_dashboard(request):
         # The user should have logged in based on the decorator @login_required
         user = request.user
         context['user'] = user
+        context['files'] = user.userfiles.all()
         if user.is_professor:
             profile = user.professor
             context['profile'] = profile
+            # Later change this so that a professor and a candidate will have a different view based on their identity.
             return render(request, 'core/dashboard.html', context)
         elif user.is_candidate:
             profile = user.candidate
@@ -168,13 +172,16 @@ def show_dashboard(request):
         else:
             return HttpResponse("You are a staff of this website, try using this site for logging in.")
 
+
 @login_required
 def upload_file(request):
     if request.method == "POST":
         form = FileForm(request.POST, request.FILES)
+        uploaded_file = request.FILES['file']
         if form.is_valid():
             file = form.save(commit=False)
             file.user = request.user
+            file.name = uploaded_file.name
             file.save()
             return redirect('core:dashboard')
         else:
@@ -184,3 +191,38 @@ def upload_file(request):
         return render(request, 'core/upload_file.html', {
             'form': form,
         })
+
+# Possible reference: https://stackoverflow.com/questions/604266/django-set-default-form-values
+# for the default values in the django form.
+# Possible reference: https://stackoverflow.com/questions/39919012/django-python-show-pdf-in-a-template
+# to have a preview in the page.
+# For pop up forms:
+# https://stackoverflow.com/questions/52501470/i-want-to-create-django-popup-form-in-my-project/52501740
+# Use the modals:
+# https://getbootstrap.com/docs/4.2/components/modal/
+
+
+@login_required
+def edit_file(request, file_id):
+    context = {}
+    try:
+        file = File.objects.get(id=file_id)
+        context['file'] = file
+    except File.DoesNotExist:
+        context['file'] = None
+
+    if request.method == "POST":
+        form = editFileForm(request.POST, instance=file)
+        if form.is_valid():
+            form.save()
+        else:
+            print(form.errors)
+    else:
+        form = editFileForm(instance=file)
+    context['form'] = form
+    share_form = sendMessageForm(initial={'file': file.file})
+    context['share_form'] = share_form
+    return render(request, 'core/edit-file.html', context)
+
+
+

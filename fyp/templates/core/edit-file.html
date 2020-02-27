@@ -1,0 +1,58 @@
+{% extends 'core/base.html' %}
+
+
+{% block title_block %}
+    file
+{% endblock %}
+
+
+
+{% block body_block %}
+    {% if file %}
+        {{ file.name }}
+    {% else %}
+        <strong>The specified file does not exist!</strong>
+    {% endif %}
+
+    <form method="post" action="{% url 'core:edit_file'  file.id %}">
+
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-primary">Save</button>
+        <!-- Redirect to the same page and update the related information. -->
+
+
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#shareModal">
+            Share
+        </button>
+        <!-- Pop up a form to let the user fill in the related information for sharing file. -->
+        <!-- Modal -->
+        <div class="modal fade" id="shareModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form>
+                    {{ share_form.as_p }}
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Send</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-danger">Delete</button>
+        <!-- Should pop up a warning and let the user choose whether he wants to delete or not. -->
+    </form>
+
+
+{% endblock %}

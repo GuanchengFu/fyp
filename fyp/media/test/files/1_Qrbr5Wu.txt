@@ -1,0 +1,11 @@
+        if (world[exit.x - 1][exit.y] == Tileset.WALL) {
+            result[0] = new Coordinate(entry.x - 1, entry.y);
+            result[1] = new Coordinate(entry.x + 1, entry.y);
+            result[2] = exit;
+            result[3] = entry;
+        } else {
+            result[0] = new Coordinate(entry.x, entry.y + 1);
+            result[1] = new Coordinate(entry.x, entry.y - 1);
+            result[2] = exit;
+            result[3] = entry;
+        }

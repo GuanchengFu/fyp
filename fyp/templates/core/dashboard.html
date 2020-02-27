@@ -13,6 +13,42 @@
 		{% else %}
 			<p class="lead">hey there partner! </p>
 		{% endif %}
-
  	</div>
+
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Download</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for file in files %}
+                <tr>
+                    <td>
+                        {{ file.name }}
+                    </td>
+                    <td>
+                        {% if file.description %}
+                            {{ file.description }}
+                        {% else %}
+                            <span class="text-muted">No description</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ file.file.url }}" class="btn btn-primary btn-sm" target="_blank">Open file</a>
+                    </td>
+                    <td>
+                        <a href="{% url 'core:edit_file' file.id %}" class="btn btn-primary btn-sm"> Edit</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+
+
 {% endblock %}

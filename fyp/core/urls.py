@@ -14,4 +14,5 @@ urlpatterns = [
 	path('logout/', views.user_logout, name='logout'),
 	path('dashboard/', views.show_dashboard, name='dashboard'),
 	path('dashboard/uploadfile/', views.upload_file, name='uploadfile'),
+	path('dashboard/file/<int:file_id>', views.edit_file, name='edit_file'),
 ]
