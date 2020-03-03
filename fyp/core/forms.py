@@ -18,8 +18,8 @@ class editFileForm(forms.ModelForm):
 
 class UserForm(forms.ModelForm):
     """Although the user class in django has the
-	password attribute.
-	This is to overwrite it so it can hide the input."""
+    password attribute.
+    This is to overwrite it so it can hide the input."""
     password = forms.CharField(widget=forms.PasswordInput())
 
     class Meta:
@@ -35,8 +35,8 @@ IDENTITY_CHOICES = [
 
 class RegisterUserForm(UserForm):
     """
-	This form includes an additional attribute known as:
-	@arg identity to help the server decide the identity of the user.
+    This form includes an additional attribute known as:
+    @arg identity to help the server decide the identity of the user.
 	"""
     identity = forms.CharField(label='What is your identity?',
                                widget=forms.Select(choices=IDENTITY_CHOICES))
@@ -46,12 +46,13 @@ class RegisterUserForm(UserForm):
 
 
 class sendMessageForm(forms.ModelForm):
-	"""
-	This form is only used in the share method within the edit-file.
-	"""
-	class Meta:
-		model = Message
-		fields = ('subject', 'body', 'receiver', 'file',)
+    """
+    This form is only used in the share method within the edit-file.
+    """
+
+    class Meta:
+        model = Message
+        fields = ('subject', 'body', 'file')
 
 
 class UserProfessorForm(forms.ModelForm):
@@ -67,7 +68,7 @@ class UserCandidateForm(forms.ModelForm):
         model = UserCandidate
 
         """
-		As the user input the name, the professor's name should pop up, so that they 
+	    As the user input the name, the professor's name should pop up, so that they 
 		can choose the one they want to choose.
 		"""
         # Whether to include the professor?

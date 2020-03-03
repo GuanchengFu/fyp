@@ -220,6 +220,7 @@ def edit_file(request, file_id):
     else:
         form = editFileForm(instance=file)
     context['form'] = form
+    # initial={'file': file.file}
     share_form = sendMessageForm(initial={'file': file.file})
     context['share_form'] = share_form
     return render(request, 'core/edit-file.html', context)
