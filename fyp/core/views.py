@@ -53,9 +53,9 @@ def redirected(request):
         identity = request.POST.get('identity')
 
         if identity == "professor":
-            return HttpResponseRedirect(reverse('core:proRegister'))
+            return redirect(reverse('core:proRegister'))
         else:
-            return HttpResponseRedirect(reverse('core:canRegister'))
+            return redirect(reverse('core:canRegister'))
     else:
         return HttpResponse("Something goes wrong.")
 
@@ -157,15 +157,6 @@ def user_logout(request):
     return HttpResponseRedirect(reverse('core:index'))
 
 
-"""
-This function will present the user information and files.
-for reference:https://stackoverflow.com/questions/32033121/display-uploaded-files-django
-显示pid？ 显示每个用户独一无二的一个数字
-tango_with_django 的第101页
-redirect to the user based on the id acquired from user.id?
-"""
-
-
 @login_required
 def show_dashboard(request):
     if request.method == 'GET':
@@ -241,6 +232,12 @@ def edit_file(request, file_id):
     share_form = sendMessageForm(initial={'file': file.file})
     context['share_form'] = share_form
     return render(request, 'core/edit-file.html', context)
+
+
+def delete_file(request, file_id):
+    file = File.objects.get(id=file_id)
+    file.delete()
+    return redirect('core:dashboard')
 
 
 def filename(s):

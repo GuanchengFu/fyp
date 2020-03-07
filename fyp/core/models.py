@@ -6,6 +6,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
+from django.dispatch import receiver
 
 # Later on, change the store position of the files so that it looks the same as the way user stores it.
 
@@ -77,27 +78,35 @@ class File(models.Model):
         return self.description
 
 
+@receiver(models.signals.post_delete, sender=File)
+def auto_delete_files_on_file_object(sender, instance, **kwargs):
+    """
+    When the File object is deleted, this method will be called.
+    reference:
+    https://stackoverflow.com/questions/16041232/django-delete-filefield
+    """
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
+
+
 class User(AbstractUser):
     """
     Customized user class.
     The email of each account should be unique.
     The user should use email and password to be authenticated.
+    reference:
+    https://stackoverflow.com/questions/37332190/django-login-with-email
+    Unique attributes: username and email
     """
-    USERNAME_FIELD = 'email'
+    # USERNAME_FIELD = 'email'
     email = models.EmailField(_('email address'), unique=True)
-    REQUIRED_FIELDS = ['username', 'password']
+    # REQUIRED_FIELDS = ('username', 'password')
     is_professor = models.BooleanField('professor status', default=False)
     is_candidate = models.BooleanField('candidate status', default=False)
 
-    class Meta:
-        unique_together = ('email',)
-
     def __str__(self):
         return self.username
-
-
-"""
-A model which is used to model the professor."""
 
 
 class UserProfessor(models.Model):
@@ -115,8 +124,9 @@ class UserProfessor(models.Model):
 
 
 class UserCandidate(models.Model):
-    """ The candidate account should only be active until the professor has verified
-    their account.
+    """
+    The candidate account should only be active until the professor has verified
+    their account. -- Implemented later.
     """
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, related_name='candidate')
 
@@ -126,10 +136,6 @@ class UserCandidate(models.Model):
 
     def __str__(self):
         return self.user.username
-
-
-def temp_file_path(instance, filename):
-    return 'message_files/{0}'.format(filename)
 
 
 class Message(models.Model):

@@ -15,5 +15,6 @@ urlpatterns = [
 	path('dashboard/', views.show_dashboard, name='dashboard'),
 	path('dashboard/uploadfile/', views.upload_file, name='uploadfile'),
 	path('dashboard/file/<int:file_id>', views.edit_file, name='edit_file'),
-	path('dashboard/sendMessage/<int:file_id>', views.dispose_message_form, name='send_message'),
+	path('dashboard/file/<int:file_id>/sendMessage', views.dispose_message_form, name='send_message'),
+	path('dashboard/file/<int:file_id>/delete', views.delete_file, name='delete_file'),
 ]
