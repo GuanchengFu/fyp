@@ -191,11 +191,14 @@ def show_dashboard(request):
 def upload_file(request):
     if request.method == "POST":
         form = FileForm(request.POST, request.FILES)
+
+        # An instance of class UploadedFile
         uploaded_file = request.FILES['file']
         if form.is_valid():
             file = form.save(commit=False)
             file.user = request.user
-            print(uploaded_file.name)
+            # upload_file.name is only the name of the file, rather than the path.
+            # "test.txt for example."
             file.name = uploaded_file.name
             file.save()
             return redirect('core:dashboard')

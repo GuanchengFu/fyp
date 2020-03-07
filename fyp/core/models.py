@@ -36,8 +36,10 @@ There should not have two files with the same name in the folder.
 
 
 class File(models.Model):
+    """
+    A model for the file uploaded by the user.
+    """
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='userfiles')
-    folder = models.ForeignKey('Folder', on_delete=models.CASCADE, related_name='files', null=True)
     description = models.CharField(max_length=70, blank=True)
     file = models.FileField(upload_to=file_location_path, blank=False)
     name = models.CharField(max_length=70, blank=False)
@@ -50,8 +52,6 @@ class File(models.Model):
         super(File, self).__init__(*args, **kwargs)
         self.__original_name = self.name
 
-    # reference:
-    # https://stackoverflow.com/questions/1355150/when-saving-how-can-you-check-if-a-field-has-changed
     def save(self, *args, **kwargs):
         # if the object is newly created:
         if not self.id:
@@ -59,13 +59,16 @@ class File(models.Model):
         self.modified = timezone.now()
         super().save(*args, **kwargs)
         """
+        The following operations are used to change the file name if the user change the 
+        file name in the form.
+        reference:
+        https://stackoverflow.com/questions/1355150/when-saving-how-can-you-check-if-a-field-has-changed
+        """
         if self.name != self.__original_name:
-        new_path = os.path.join(os.path.dirname(self.file.path), self.name)
-        print(new_path)
+            new_path = os.path.join(os.path.dirname(self.file.path), self.name)
         os.rename(self.file.path, new_path)
         super().save(*args, **kwargs)
         self.__original_name = self.name
-        """
 
     class Meta:
         verbose_name_plural = "Files"
@@ -74,11 +77,7 @@ class File(models.Model):
         return self.description
 
 
-"""
-Folder is a model for the folders stored by the user.
-The related name attribute is a reference hold by the foreign key to access all the folders
-related to the user or the folder.
-"""
+
 
 
 class Folder(models.Model):
