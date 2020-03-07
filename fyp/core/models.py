@@ -57,13 +57,15 @@ class File(models.Model):
         if not self.id:
             self.created = timezone.now()
         self.modified = timezone.now()
-
+        super().save(*args, **kwargs)
+        """
         if self.name != self.__original_name:
-            new_path = os.path.join(os.path.dirname(self.file.path), self.name)
-            print(new_path)
-            os.rename(self.file.path, new_path)
+        new_path = os.path.join(os.path.dirname(self.file.path), self.name)
+        print(new_path)
+        os.rename(self.file.path, new_path)
         super().save(*args, **kwargs)
         self.__original_name = self.name
+        """
 
     class Meta:
         verbose_name_plural = "Files"
@@ -137,6 +139,10 @@ class UserCandidate(models.Model):
         return self.user.username
 
 
+def temp_file_path(instance, filename):
+    return 'message_files/{0}'.format(filename)
+
+
 class Message(models.Model):
     """
     A message sent by a user to another user.
@@ -146,12 +152,12 @@ class Message(models.Model):
     sender = models.ForeignKey(get_user_model(), related_name="sent_messages", on_delete=models.PROTECT)
     receiver = models.ForeignKey(get_user_model(), related_name="received_messages", on_delete=models.PROTECT)
     sent_at = models.DateTimeField(editable=False, blank=True, null=True)
-    file = models.FileField(upload_to=file_location_path, blank=True, null=True)
+    file = models.FileField(upload_to='temp_files', blank=True, null=True)
 
     def save(self, *args, **kwargs):
         # if the object is newly created:
         if not self.id:
             self.sent_at = timezone.now()
-        super().save(*args, **kwargs)
+        super(Message, self).save(*args, **kwargs)
 
 

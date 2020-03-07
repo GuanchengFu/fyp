@@ -1,25 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>My PhD - Log in</title>
-</head>
+{% extends 'core/base.html' %}
 
-<body>
-<div>
-    <strong>Login Here!</strong>
-    <form id="login_form" method="post" action="{% url 'core:index' %}">
-        {% csrf_token %}
-        Email: <input type="text" name="email" value="" size="50" />
-        <br />
-        Password: <input type="password" name="password" value="" size="50" />
-        <br />
-        <input type="submit" value="submit" />
-    </form>
-
-    Forget password? <br/>
-    Not a member?
-    <a href="{% url 'core:register' %}">Register here!</a>
+{% block body_block %}
+    <link href="https://getbootstrap.com/docs/4.0/examples/signin/signin.css"
+    rel="stylesheet">
+<div class="jumbotron p-4">
+<h1 class="jumbotron-heading">Login</h1>
 </div>
-</body>
-</html>
+<div class="container">
+<form class="form-signin" role="form" method="post" action=".">
+{% csrf_token %}
+<label for="inputUsername" class="sr-only">Email</label>
+<input type="text" name="email" id="id_email" class="form-control"
+placeholder="Email" required autofocus>
+<label for="inputPassword" class="sr-only">Password</label>
+<input type="password" name="password" id="id_password" class="form-control"
+placeholder="Password" required>
+<button class="btn btn-lg btn-primary btn-block" type="submit"
+value="Submit">Sign in</button>
+</form>
+</div>
+{% endblock %}

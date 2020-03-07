@@ -9,10 +9,11 @@ urlpatterns = [
 	path('about/', views.about, name='about'),
 	path('register/', views.register, name='register'),
 	path('redirected/', views.redirected, name='redirected'),
-	path('professorregister/', views.professorRegister, name='proRegister'),
-	path('candidateregister/', views.candidateRegister, name='canRegister'),
+	path('professorregister/', views.professor_register, name='proRegister'),
+	path('candidateregister/', views.candidate_register, name='canRegister'),
 	path('logout/', views.user_logout, name='logout'),
 	path('dashboard/', views.show_dashboard, name='dashboard'),
 	path('dashboard/uploadfile/', views.upload_file, name='uploadfile'),
 	path('dashboard/file/<int:file_id>', views.edit_file, name='edit_file'),
+	path('dashboard/sendMessage/<int:file_id>', views.dispose_message_form, name='send_message'),
 ]
