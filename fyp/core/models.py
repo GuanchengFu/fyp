@@ -77,25 +77,12 @@ class File(models.Model):
         return self.description
 
 
-
-
-
-class Folder(models.Model):
-    # user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='userfolders')
-    folder = models.ForeignKey('self', on_delete=models.CASCADE, related_name='folders', null=True)
-
-    # The name may need to be checked to see whether the naming convention is complied.
-    name = models.CharField(max_length=70)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name_plural = "Folders"
-
-
 class User(AbstractUser):
-    # assDefine the additional information.
+    """
+    Customized user class.
+    The email of each account should be unique.
+    The user should use email and password to be authenticated.
+    """
     USERNAME_FIELD = 'email'
     email = models.EmailField(_('email address'), unique=True)
     REQUIRED_FIELDS = ['username', 'password']
@@ -114,10 +101,13 @@ A model which is used to model the professor."""
 
 
 class UserProfessor(models.Model):
-    # To get the UserProfessor, use the user.profile to get it.
+    """
+    A model for the professor user.
+    Each professor should has a one-to-one relationship with a User object.
+    """
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, related_name='professor')
 
-    # picture will be uploaded to MEDIA_ROOT/profile_images
+    # picture will be uploaded to MEDIA_ROOT/professor_images
     picture = models.ImageField(upload_to='professor_images', blank=True)
 
     def __str__(self):
