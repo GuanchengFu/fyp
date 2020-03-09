@@ -282,6 +282,15 @@ def dispose_message_form(request, file_id):
             print(form.errors)
 
 
+@login_required
+def show_message(request):
+    if request.method == "GET":
+        context = {}
+        user = request.user
+        context['user'] = request.user
+        context['messages'] = user.received_messages.order_by('-sent_at')
+        return render(request, 'core/show_messages.html', context)
+
 
 
 
