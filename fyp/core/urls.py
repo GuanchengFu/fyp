@@ -17,4 +17,5 @@ urlpatterns = [
 	path('dashboard/file/<int:file_id>', views.edit_file, name='edit_file'),
 	path('dashboard/file/<int:file_id>/sendMessage', views.dispose_message_form, name='send_message'),
 	path('dashboard/file/<int:file_id>/delete', views.delete_file, name='delete_file'),
+	path('dashboard/messages', views.show_message, name='show_message'),
 ]

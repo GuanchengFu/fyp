@@ -1,0 +1,66 @@
+{% extends 'core/base.html' %}
+{% load staticfiles %}
+
+{% block title_block %}
+    Messages
+{% endblock %}
+
+
+
+{% block body_block %}
+
+    <div class="jumbotron jumbotron-fluid">
+      <div class="container">
+        <h1 class="display-4">Messages</h1>
+        <p class="lead">Checked the messages received here.</p>
+      </div>
+    </div>
+
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>
+                    Subject
+                </th>
+
+                <th>
+                    Sender
+                </th>
+
+                <th>
+                    Sent at
+                </th>
+
+                <th>
+                    Check
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for message in messages %}
+            <tr>
+                <td>
+                    {% if message.is_open %}
+                        {{ message.subject }}
+                    {% else %}
+                        <strong>{{ message.subject }}</strong>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ message.sender }}
+                </td>
+
+                <td>
+                    {{ message.sent_at }}
+                </td>
+
+                <td>
+                    <a href="#" class="btn btn-primary btn-sm">Check</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

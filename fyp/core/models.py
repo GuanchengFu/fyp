@@ -148,6 +148,7 @@ class Message(models.Model):
     receiver = models.ForeignKey(get_user_model(), related_name="received_messages", on_delete=models.PROTECT)
     sent_at = models.DateTimeField(editable=False, blank=True, null=True)
     file = models.FileField(upload_to='temp_files', blank=True, null=True)
+    is_open = models.BooleanField(blank=False, default=False)
 
     def save(self, *args, **kwargs):
         # if the object is newly created:
