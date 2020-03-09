@@ -294,6 +294,7 @@ def show_message(request):
         context['messages'] = user.received_messages.order_by('-sent_at')
         return render(request, 'core/show_messages.html', context)
 
+
 @login_required
 def check_message(request, message_id):
     """
