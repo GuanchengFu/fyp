@@ -1,0 +1,66 @@
+{% extends 'core/base.html' %}
+
+
+
+{% block title_block %}
+    trash box
+{% endblock %}
+
+{% block trash_tag %}
+    active
+{% endblock %}
+
+
+{% block body_block %}
+    <h1>Deleted Messages</h1>
+
+    {% if message_list %}
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>
+                        Sender
+                    </th>
+
+                    <th>
+                        Subject
+                    </th>
+
+                    <th>
+                        Date
+                    </th>
+
+                    <th>
+                        Action
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for message in message_list %}
+                    <tr>
+                        <th>
+                            {{ message.sender }}
+                        </th>
+
+                        <th>
+                            {{ message.subject }}
+                        </th>
+
+                        <th>
+                            {{ message.sent_at }}
+                        </th>
+
+                        <th>
+                            <a href="#" class="btn btn-primary btn-sm">Undelete</a>
+                        </th>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No message has been deleted.</p>
+    {% endif %}
+{% endblock %}
+
+

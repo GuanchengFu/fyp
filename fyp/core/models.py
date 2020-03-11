@@ -90,6 +90,26 @@ def auto_delete_files_on_file_object(sender, instance, **kwargs):
             os.remove(instance.file.path)
 
 
+class UserManager(models.Manager):
+    """
+    A customizing manager class which is used to return some useful queryset.
+    """
+    def possible_recipients_for(self, user):
+        """
+        Return the user list whose can be the potential recipients of the
+        message.
+        possible_list = User.objects.possible_recipients_for(user)
+        """
+        if user.is_candidate:
+            return self.filter(
+                email=user.candidate.professor.user.email
+            )
+        if user.is_professor:
+            return self.filter(
+                is_candidate=True,
+            )
+
+
 class User(AbstractUser):
     """
     Customized user class.
@@ -108,6 +128,14 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
+    def is_candidate_of_professor(self, candidate_list):
+        if self.is_professor:
+            return False
+        if self.is_candidate:
+            if self.email in candidate_list:
+                return True
+        return False
+
 
 class UserProfessor(models.Model):
     """
@@ -121,6 +149,12 @@ class UserProfessor(models.Model):
 
     def __str__(self):
         return self.user.username
+
+    def candidates_email_set(self):
+        result = []
+        for c in self.students.all():
+            result.append(c.user.email)
+        return result
 
 
 class UserCandidate(models.Model):
@@ -138,22 +172,74 @@ class UserCandidate(models.Model):
         return self.user.username
 
 
+class MessageManager(models.Manager):
+    """
+    A customizing manager class which is used to return some useful queryset.
+    """
+    def inbox_for(self, user):
+        """
+        Return all messages that were received by the given user and are not marked as deleted.
+        """
+        return self.filter(
+            receiver=user,
+            is_receiver_delete=False,
+        )
+
+    def outbox_for(self, user):
+        """
+        Returns all the messages that were sent by the user and was not
+        deleted by the user.
+        """
+        return self.filter(
+            sender=user,
+            is_sender_delete=False,
+        )
+
+    def trash_for(self, user):
+        """
+        Return all the messages that were either received or sent by the user
+        and the user has deleted the message.
+        """
+        return self.filter(
+            receiver=user,
+            is_receiver_delete=True,
+        ) | self.filter(
+            sender=user,
+            is_sender_delete=True,
+        )
+
+
 class Message(models.Model):
     """
     A message sent by a user to another user.
+    The SET_NULL attribute will set the attribute to null, if the foreignkey is deleted.
     """
-    subject = models.CharField(max_length=70, blank=False)
+    subject = models.CharField(_("Subject"), max_length=70, blank=False)
     body = models.CharField(max_length=250, blank=True)
+
     sender = models.ForeignKey(get_user_model(), related_name="sent_messages", on_delete=models.PROTECT)
-    receiver = models.ForeignKey(get_user_model(), related_name="received_messages", on_delete=models.PROTECT)
+    receiver = models.ForeignKey(get_user_model(), related_name="received_messages", on_delete=models.SET_NULL,
+                                 blank=True, null=True)
+    # The user may want to send a reply to the sender.
+    parent_msg = models.ForeignKey('self', related_name='next_messages', null=True, blank=True,
+                                   verbose_name="parent message", on_delete=models.SET_NULL)
+
     sent_at = models.DateTimeField(editable=False, blank=True, null=True)
     file = models.FileField(upload_to='temp_files', blank=True, null=True)
-    is_open = models.BooleanField(blank=False, default=False)
+
+    is_read = models.BooleanField(blank=False, default=False)
+    is_sender_delete = models.BooleanField(blank=False, default=False)
+    is_receiver_delete = models.BooleanField(blank=False, default=False)
+
+    objects = MessageManager()
 
     def save(self, *args, **kwargs):
         # if the object is newly created:
         if not self.id:
             self.sent_at = timezone.now()
         super(Message, self).save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['sent_at']
 
 

@@ -3,12 +3,14 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from core.forms import UserForm, UserProfessorForm, UserCandidateForm, IdentityForm, FileForm, editFileForm
-from core.forms import sendMessageForm
-from core.models import File
+from core.forms import sendMessageForm, ComposeForm
+from core.models import File, Message
 from django.core.files import File as File_Django
 import os
+
+User = get_user_model()
 
 
 def index(request):
@@ -201,6 +203,7 @@ def upload_file(request):
             'form': form,
         })
 
+
 # Possible reference: https://stackoverflow.com/questions/604266/django-set-default-form-values
 # for the default values in the django form.
 # Possible reference: https://stackoverflow.com/questions/39919012/django-python-show-pdf-in-a-template
@@ -286,13 +289,16 @@ def dispose_message_form(request, file_id):
 def show_message(request):
     """
     Show all the messages received by the user.
-    """
+    previous version:
     if request.method == "GET":
         context = {}
         user = request.user
         context['user'] = request.user
         context['messages'] = user.received_messages.order_by('-sent_at')
         return render(request, 'core/show_messages.html', context)
+    """
+    message_list = Message.objects.inbox_for(request.user)
+    return render(request, 'core/show_messages.html', {'messages': message_list, })
 
 
 @login_required
@@ -300,6 +306,41 @@ def check_message(request, message_id):
     """
     Check Each message.
     """
+
+
+def send_message(request, recipient=None, recipient_filter=None):
+    """
+    The view to allow the user to send messages to other users.
+    need to be changed.
+    """
+    if request.method == "POST":
+        sender = request.user
+        form = ComposeForm(request.POST, request.FILES)
+        uploaded_file = request.FILES['file']
+        if form.is_valid():
+            form.save(sender=request.user)
+            return HttpResponse("Message sent!")
+    else:
+        form = ComposeForm(initial={"subject": request.GET.get("subject", "")})
+        if recipient is not None:
+            recipients = [u for u in User.objects.filter(
+                **{'%s__in' % User.username: [r.strip() for r in recipient.split('+')]})]
+            form.fields['recipient'].initial = recipients
+    return render(request, 'core/Compose.html', {
+        'form': form,
+    })
+
+
+@login_required
+def outbox(request,):
+    message_list = Message.objects.outbox_for(request.user)
+    return render(request, 'core/outbox.html', {'message_list': message_list})
+
+
+@login_required
+def trash(request,):
+    message_list = Message.objects.trash_for(request.user)
+    return render(request, 'core/trash.html', {'message_list': message_list})
 
 
 

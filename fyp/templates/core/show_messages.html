@@ -5,10 +5,13 @@
     Messages
 {% endblock %}
 
-
+{% block inbox_tag %}
+    active
+{% endblock %}
 
 {% block body_block %}
 
+    <!--A container for showing the header of the page. -->
     <div class="jumbotron jumbotron-fluid">
       <div class="container">
         <h1 class="display-4">Messages</h1>
@@ -16,23 +19,24 @@
       </div>
     </div>
 
+    {% if messages %}
     <table class="table mb-0">
         <thead>
             <tr>
-                <th>
-                    Subject
-                </th>
-
                 <th>
                     Sender
                 </th>
 
                 <th>
-                    Sent at
+                    Subject
                 </th>
 
                 <th>
-                    Check
+                    Received
+                </th>
+
+                <th>
+                    Action
                 </th>
             </tr>
         </thead>
@@ -41,14 +45,14 @@
             {% for message in messages %}
             <tr>
                 <td>
-                    {% if message.is_open %}
+                    {{ message.sender }}
+                </td>
+                <td>
+                    {% if message.is_read %}
                         {{ message.subject }}
                     {% else %}
                         <strong>{{ message.subject }}</strong>
                     {% endif %}
-                </td>
-                <td>
-                    {{ message.sender }}
                 </td>
 
                 <td>
@@ -62,5 +66,8 @@
             {% endfor %}
         </tbody>
     </table>
+    {% else %}
+        <p>No messages.</p>
+    {% endif %}
 
 {% endblock %}
