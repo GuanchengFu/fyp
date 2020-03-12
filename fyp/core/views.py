@@ -63,9 +63,12 @@ def redirected(request):
 
 
 def register(request):
+    """
+    The first step of the registration, which require the user to select their identification.
+    """
     identity_form = IdentityForm()
     context_dictionary = {'identity_form': identity_form}
-    return render(request, 'core/register-first-step.html', context_dictionary)
+    return render(request, 'core/registration_first_step.html', context_dictionary)
 
 
 def professor_register(request):
@@ -94,7 +97,11 @@ def professor_register(request):
 
             registered = True
 
-            return HttpResponse("Register successful!")
+            new_user = authenticate(email=user_form.cleaned_data['email'], password=user_form.cleaned_data['password'])
+
+            login(request, new_user)
+
+            return redirect(reverse('core:dashboard'))
 
         else:
             print(user_form.errors, profile_form.errors)
@@ -136,7 +143,11 @@ def candidate_register(request):
 
             registered = True
 
-            return HttpResponse("Register successful!")
+            new_user = authenticate(email=user_form.cleaned_data['email'], password=user_form.cleaned_data['password'])
+
+            login(request, new_user)
+
+            return redirect(reverse('core:dashboard'))
 
         else:
             print(user_form.errors, profile_form.errors)
