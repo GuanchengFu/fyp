@@ -164,7 +164,8 @@ class UserCandidate(models.Model):
     """
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, related_name='candidate')
 
-    professor = models.ForeignKey(UserProfessor, on_delete=models.CASCADE, related_name="students", null=False)
+    # professor = models.ForeignKey(UserProfessor, on_delete=models.CASCADE, related_name="students", null=False)
+    professor = models.ManyToManyField(UserProfessor)
 
     picture = models.ImageField(upload_to='candidate_images', blank=True)
 
@@ -241,5 +242,22 @@ class Message(models.Model):
 
     class Meta:
         ordering = ['sent_at']
+
+
+class Group(models.Model):
+    """
+    A group created by one of the professor.
+    The group can be used to send multiple messages.
+    Send message to all the group members.
+
+    creator: The creator of the group, only the creator can have the authority to delete the group.
+    manager: The manager have the authority to send messages to all the group members.
+    creator will be automatically be the manager of the group.
+
+    member: The member can only be able to send personal message to their supervisor.
+    """
+    creator = models.ForeignKey(UserProfessor, related_name="created_groups", on_delete=models.CASCADE)
+    manager = models.ManyToManyField(UserProfessor)
+    member = models.ManyToManyField(get_user_model())
 
 
