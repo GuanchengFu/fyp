@@ -316,6 +316,7 @@ def show_message(request):
 def check_message(request, message_id):
     """
     Check Each message.
+    Implement later.
     """
 
 
@@ -352,6 +353,24 @@ def outbox(request,):
 def trash(request,):
     message_list = Message.objects.trash_for(request.user)
     return render(request, 'core/trash.html', {'message_list': message_list})
+
+
+@login_required
+def connection(request,):
+    """
+    Show all the connections with other professors.
+    Display the groups that the student was enrolled in.
+    Should display different pages for different users.
+    The form doesn't add the user into its
+    """
+    user = request.user
+    context_dict = []
+    if user.is_professor:
+        # User is professor, acquire all his candidates and groups into the context_dict.
+        candidates = user.professor.students.all()
+        context_dict['candidates'] = candidates
+        return render(request, 'core/connection_professor.html', context_dict)
+
 
 
 

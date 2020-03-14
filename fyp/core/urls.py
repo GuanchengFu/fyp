@@ -21,4 +21,5 @@ urlpatterns = [
 	path('dashboard/messages/compose', views.send_message, name='send_message'),
 	path('dashboard/messages/outbox', views.outbox, name='outbox'),
 	path('dashboard/messages/trash', views.trash, name='trash_box'),
+	path('dashboard/connection', views.connection, name='connection'),
 ]

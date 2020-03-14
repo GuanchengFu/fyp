@@ -1,0 +1,42 @@
+{% extends 'core/base.html' %}
+
+
+{% block title_block %}
+    Connections
+{% endblock %}
+
+
+
+{% block body_block %}
+
+    <div class="jumbotron jumbotron-fluid">
+      <div class="container">
+        <h1 class="display-4">Connections</h1>
+        <p class="lead">Check here to see your connections with professors and groups!</p>
+      </div>
+    </div>
+
+    {% if candidates %}
+        {% for candidate in candidates %}
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card" style="width: 18rem;">
+                            {% if candidate.picture %}
+                                <img src="{{ candidate.picture.url }}" class="card-img-top" alt="Profile Image">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ candidate.username }}</h5>
+                                <a href="#" class="btn btn-primary">Check message</a>
+                                <a href="#" class="btn btn-danger">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <strong>You currently do not have any candidates.</strong>
+    {% endif %}
+{% endblock %}
