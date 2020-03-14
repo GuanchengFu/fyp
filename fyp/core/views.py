@@ -364,7 +364,7 @@ def connection(request,):
     The form doesn't add the user into its
     """
     user = request.user
-    context_dict = []
+    context_dict = {}
     if user.is_professor:
         # User is professor, acquire all his candidates and groups into the context_dict.
         candidates = user.professor.students.all()
