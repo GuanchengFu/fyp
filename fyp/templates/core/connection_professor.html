@@ -18,11 +18,10 @@
 
     {% if candidates %}
         <h2>All the candidates are shown here:</h2><br/>
-        {% for candidate in candidates %}
-
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-4">
+        <div class="container">
+            <div class="row">
+                {% for candidate in candidates %}
+                    <div class="col-4">
                         <div class="card" style="width: 18rem;">
                             {% if candidate.picture %}
                                 <img src="{{ candidate.picture.url }}" class="card-img-top" alt="Profile Image">
@@ -34,9 +33,14 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                    {% if forloop.counter|divisibleby:3 %}
             </div>
-        {% endfor %}
+            <div class="row">
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+        </div>
     {% else %}
         <strong>You currently do not have any candidates.</strong>
     {% endif %}

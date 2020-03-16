@@ -164,7 +164,6 @@ class UserCandidate(models.Model):
     """
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, related_name='candidate')
 
-    # professor = models.ForeignKey(UserProfessor, on_delete=models.CASCADE, related_name="students", null=False)
     professor = models.ManyToManyField(UserProfessor, related_name='students')
 
     picture = models.ImageField(upload_to='candidate_images', blank=True)

@@ -141,6 +141,12 @@ def candidate_register(request):
 
             profile.save()
 
+            """
+            Reference for using this:
+            https://docs.djangoproject.com/en/dev/topics/forms/modelforms/#the-save-method
+            """
+            profile_form.save_m2m()
+
             registered = True
 
             new_user = authenticate(email=user_form.cleaned_data['email'], password=user_form.cleaned_data['password'])
