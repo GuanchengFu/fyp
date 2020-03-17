@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from core.forms import UserForm, UserProfessorForm, UserCandidateForm, IdentityForm, FileForm, editFileForm
-from core.forms import sendMessageForm, ComposeForm
+from core.forms import sendMessageForm, ComposeForm, GroupForm
 from core.models import File, Message
 from django.core.files import File as File_Django
 import os
@@ -375,7 +375,47 @@ def connection(request,):
         # User is professor, acquire all his candidates and groups into the context_dict.
         candidates = user.professor.students.all()
         context_dict['candidates'] = candidates
+
+        # Acquire all the groups created by the professor.
+        group_created = user.professor.created_groups.all()
+        context_dict['created_groups'] = group_created
         return render(request, 'core/connection_professor.html', context_dict)
+
+
+def get_related_choices(user):
+    """
+    Return a list with all the related students for a professor.
+    """
+    result = []
+    students = user.professor.students.all()
+    for student in students:
+        result.append((student.user.username, student.user.username))
+    return result
+
+
+@login_required
+def create_group(request,):
+    """
+    Create group for the professor user.
+    The procedure are introduced as follows:
+    Created forms:
+    ManyToManyField is represented using the MultipleChoiceField, and the default widget
+    is SelectMultiple, the problems here is to design a way to supply choices for the
+    ManyToManyField.
+    """
+    if request.method == "GET":
+        form = GroupForm(get_related_choices(request.user))
+        return render(request, 'core/create_group.html',
+                      {'form': form, })
+    # The request is a POST method.
+    else:
+        form = GroupForm(request.POST)
+        print(form.fields['members'])
+        for user in form.fields['members'].all():
+            print(user)
+        return HttpResponse("test")
+
+
 
 
 

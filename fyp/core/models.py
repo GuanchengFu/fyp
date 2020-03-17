@@ -243,6 +243,19 @@ class Message(models.Model):
         ordering = ['sent_at']
 
 
+class GroupManager(models.Manager):
+    """
+    A customizing class which is used to return the group created by the user.
+    """
+    def involved_in(self, user):
+        """
+        Return all groups where the user is involved in.
+        """
+        return self.filter(
+            member=user,
+        )
+
+
 class Group(models.Model):
     """
     A group created by one of the professor.
@@ -250,13 +263,13 @@ class Group(models.Model):
     Send message to all the group members.
 
     creator: The creator of the group, only the creator can have the authority to delete the group.
-    manager: The manager have the authority to send messages to all the group members.
     creator will be automatically be the manager of the group.
+
+    All the professor can send group messages while the members can only receive group messages.
 
     member: The member can only be able to send personal message to their supervisor.
     """
     creator = models.ForeignKey(UserProfessor, related_name="created_groups", on_delete=models.CASCADE)
-    manager = models.ManyToManyField(UserProfessor)
     member = models.ManyToManyField(get_user_model())
 
 

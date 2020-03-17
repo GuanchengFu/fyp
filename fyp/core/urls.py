@@ -22,4 +22,5 @@ urlpatterns = [
 	path('dashboard/messages/outbox', views.outbox, name='outbox'),
 	path('dashboard/messages/trash', views.trash, name='trash_box'),
 	path('dashboard/connection', views.connection, name='connection'),
+	path('dashboard/connection/createGroup', views.create_group, name='create_group'),
 ]

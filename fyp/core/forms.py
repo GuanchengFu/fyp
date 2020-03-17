@@ -124,3 +124,19 @@ class ComposeForm(forms.Form):
             message_list.append(msg)
         return message_list
 
+
+class GroupForm(forms.Form):
+    """
+    A form which is used to create groups.
+    """
+    members = forms.MultipleChoiceField(required=True, widget=forms.CheckboxSelectMultiple)
+
+    def __init__(self, dataset, *args, **kwargs):
+        super(GroupForm, self).__init__(*args, **kwargs)
+        self.fields['members'].choices = dataset
+
+
+
+
+
+

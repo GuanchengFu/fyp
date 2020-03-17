@@ -8,7 +8,6 @@
 
 
 {% block body_block %}
-
     <div class="jumbotron jumbotron-fluid">
       <div class="container">
         <h1 class="display-4">Connections</h1>
@@ -44,4 +43,15 @@
     {% else %}
         <strong>You currently do not have any candidates.</strong>
     {% endif %}
+
+    <hr>
+    {% if created_groups %}
+        <h2>
+            All the groups created are shown here:
+        </h2>
+    {% else %}
+        <h2>You currently don't creat any groups.</h2>
+    {% endif %}
+    <br>
+    <a href="{% url 'core:create_group' %}" class="btn btn-primary">Create group</a>
 {% endblock %}
