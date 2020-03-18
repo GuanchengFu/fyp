@@ -269,7 +269,8 @@ class Group(models.Model):
 
     member: The member can only be able to send personal message to their supervisor.
     """
+    title = models.CharField(max_length=70, blank=False)
     creator = models.ForeignKey(UserProfessor, related_name="created_groups", on_delete=models.CASCADE)
-    member = models.ManyToManyField(get_user_model())
+    members = models.ManyToManyField(UserCandidate, related_name="participants")
 
 

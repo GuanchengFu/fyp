@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from core.forms import UserForm, UserProfessorForm, UserCandidateForm, IdentityForm, FileForm, editFileForm
 from core.forms import sendMessageForm, ComposeForm, GroupForm
-from core.models import File, Message
+from core.models import File, Message, Group
 from django.core.files import File as File_Django
 import os
 
@@ -397,26 +397,33 @@ def get_related_choices(user):
 def create_group(request,):
     """
     Create group for the professor user.
-    The procedure are introduced as follows:
-    Created forms:
-    ManyToManyField is represented using the MultipleChoiceField, and the default widget
-    is SelectMultiple, the problems here is to design a way to supply choices for the
-    ManyToManyField.
     """
     if request.method == "GET":
-        form = GroupForm(get_related_choices(request.user))
+        form = GroupForm()
+        # Set the choices field for the member fields.
+        form.fields['members'].choices = get_related_choices(request.user)
         return render(request, 'core/create_group.html',
                       {'form': form, })
     # The request is a POST method.
     elif request.method == "POST":
         """
-        The form has a customizing __init__ method, so the request.POST will be passed as the 
-        dataset.  Therefore, we cannot use it.
-        Now it should works just fine.
+        We need to set the choices field for the form, so that it can validates itself.
         """
-        members = dict(request.POST.copy())['members']
-        print(members)
-
+        form = GroupForm(request.POST)
+        form.fields['members'].choices = get_related_choices(request.user)
+        if form.is_valid():
+            members = form.cleaned_data['members']
+            title = form.cleaned_data['title']
+            group = Group()
+            group.creator = request.user.professor
+            group.title = title
+            group.save()
+            for student in members:
+                candidate = User.objects.get(username=student).candidate
+                group.members.add(candidate)
+            return redirect("core:connection")
+        else:
+            print(form.errors)
 
 
 

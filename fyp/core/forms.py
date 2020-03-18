@@ -128,13 +128,16 @@ class ComposeForm(forms.Form):
 class GroupForm(forms.Form):
     """
     A form which is used to create groups.
-    """
-    members = forms.MultipleChoiceField(required=True, widget=forms.CheckboxSelectMultiple)
-
-    def __init__(self, dataset=None, *args, **kwargs):
+        def __init__(self, dataset=None, *args, **kwargs):
         super(GroupForm, self).__init__(*args, **kwargs)
         if dataset:
             self.fields['members'].choices = dataset
+
+    """
+    title = forms.CharField(required=True, max_length=70, label="The title of the group:")
+    members = forms.MultipleChoiceField(required=True, widget=forms.CheckboxSelectMultiple,
+                                        label="Choose the members of the group:")
+
 
 
 

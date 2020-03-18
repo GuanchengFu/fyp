@@ -5,7 +5,9 @@
     Connections
 {% endblock %}
 
-
+{% block connection_tag %}
+    active
+{% endblock %}
 
 {% block body_block %}
     <div class="jumbotron jumbotron-fluid">
@@ -35,6 +37,7 @@
                     {% if forloop.counter|divisibleby:3 %}
             </div>
             <div class="row">
+
                     {% endif %}
                 {% endfor %}
             </div>
@@ -48,7 +51,38 @@
     {% if created_groups %}
         <h2>
             All the groups created are shown here:
+            <br/>
         </h2>
+        <div class="container">
+            <div class="row">
+                {% for group in created_groups %}
+                    <div class="col-4">
+                    <!-- Display the card here! -->
+                        <div class="card" style="width: 18rem;">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ group.title }}</h5>
+                                <p class="card-text">The members of the group are listed below:</p>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                {% for member in group.members.all %}
+                                    <li class="list-group-item">{{ member.user.username }}</li>
+                                {% endfor %}
+                            </ul>
+                            <div class="card-body">
+                                <a href="#" class="card-link">Card link</a>
+                                <a href="#" class="card-link">Another link</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% if forloop.counter|divisibleby:3 %}
+            </div>
+            <div class="row">
+
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+        </div>
     {% else %}
         <h2>You currently don't creat any groups.</h2>
     {% endif %}
