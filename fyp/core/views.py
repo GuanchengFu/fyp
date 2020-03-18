@@ -408,12 +408,15 @@ def create_group(request,):
         return render(request, 'core/create_group.html',
                       {'form': form, })
     # The request is a POST method.
-    else:
-        form = GroupForm(request.POST)
-        print(form.fields['members'])
-        for user in form.fields['members'].all():
-            print(user)
-        return HttpResponse("test")
+    elif request.method == "POST":
+        """
+        The form has a customizing __init__ method, so the request.POST will be passed as the 
+        dataset.  Therefore, we cannot use it.
+        Now it should works just fine.
+        """
+        members = dict(request.POST.copy())['members']
+        print(members)
+
 
 
 

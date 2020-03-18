@@ -131,9 +131,12 @@ class GroupForm(forms.Form):
     """
     members = forms.MultipleChoiceField(required=True, widget=forms.CheckboxSelectMultiple)
 
-    def __init__(self, dataset, *args, **kwargs):
+    def __init__(self, dataset=None, *args, **kwargs):
         super(GroupForm, self).__init__(*args, **kwargs)
-        self.fields['members'].choices = dataset
+        if dataset:
+            self.fields['members'].choices = dataset
+
+
 
 
 
