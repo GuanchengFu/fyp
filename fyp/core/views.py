@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from core.forms import UserForm, UserProfessorForm, UserCandidateForm, IdentityForm, FileForm, editFileForm
-from core.forms import sendMessageForm, ComposeForm, GroupForm
+from core.forms import sendMessageForm, ComposeForm, GroupForm, AddGroupForm
 from core.models import File, Message, Group
 from django.core.files import File as File_Django
 import os
@@ -326,29 +326,6 @@ def check_message(request, message_id):
     """
 
 
-def send_message(request, recipient=None, recipient_filter=None):
-    """
-    The view to allow the user to send messages to other users.
-    need to be changed.
-    """
-    if request.method == "POST":
-        sender = request.user
-        form = ComposeForm(request.POST, request.FILES)
-        uploaded_file = request.FILES['file']
-        if form.is_valid():
-            form.save(sender=request.user)
-            return HttpResponse("Message sent!")
-    else:
-        form = ComposeForm(initial={"subject": request.GET.get("subject", "")})
-        if recipient is not None:
-            recipients = [u for u in User.objects.filter(
-                **{'%s__in' % User.username: [r.strip() for r in recipient.split('+')]})]
-            form.fields['recipient'].initial = recipients
-    return render(request, 'core/Compose.html', {
-        'form': form,
-    })
-
-
 @login_required
 def outbox(request,):
     message_list = Message.objects.outbox_for(request.user)
@@ -393,6 +370,17 @@ def get_related_choices(user):
     return result
 
 
+def get_related_groups(user):
+    """
+    Return a list with all the groups created by a certain professor.
+    """
+    result = []
+    groups = Group.objects.filter(creator=user.professor)
+    for group in groups:
+        result.append((group.id, group.title))
+    return result
+
+
 @login_required
 def create_group(request,):
     """
@@ -426,6 +414,29 @@ def create_group(request,):
             print(form.errors)
 
 
+def send_message(request,):
+    """
+    The view to allow the user to send messages to other users.
+    This is not the same to reply message.
+    """
+    context_dict = {}
+    if request.method == "POST":
+        sender = request.user
+        form = ComposeForm(request.POST, request.FILES)
+        form.fields['recipients'].choices = get_related_choices(request.user)
+        uploaded_file = request.FILES['file']
+        if form.is_valid():
+            form.save(sender=request.user)
+            return HttpResponse("Message sent!")
+    else:
+        print(request.GET)
+        form_message = ComposeForm(initial={"subject": request.GET.get("subject", "")})
+        form_message.fields['recipients'].choices = get_related_choices(request.user)
+        form_group = AddGroupForm()
+        form_group.fields['groups'].choices = get_related_groups(request.user)
+        context_dict['form_message'] = form_message
+        context_dict['form_group'] = form_group
+    return render(request, 'core/send_message.html', context_dict)
 
 
 

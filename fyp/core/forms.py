@@ -91,38 +91,11 @@ class ComposeForm(forms.Form):
     recipient_filter: a function which receives a user object and returns a boolean
                      whether it is an allowed recipient or not.
     """
-    recipient = CommaSeparatedUserField(label=_(u"Recipient"))
-    subject = forms.CharField(label=_(u"Subject"), max_length=140)
+    subject = forms.CharField(label=_(u"Subject"), max_length=70, required=True)
     body = forms.CharField(label=_(u"Body"),
-                           widget=forms.Textarea(attrs={'rows': '12', 'cols': '55'}))
-    file = forms.FileField()
-
-    def __init__(self, *args, **kwargs):
-        recipient_filter = kwargs.pop('recipient_filter', None)
-        super(ComposeForm, self).__init__(*args, **kwargs)
-        if recipient_filter is not None:
-            self.fields['recipient']._recipient_filter = recipient_filter
-
-    def save(self, sender, parent_msg=None):
-        recipients = self.cleaned_data['recipient']
-        subject = self.cleaned_data['subject']
-        body = self.cleaned_data['body']
-        file = self.cleaned_data['file']
-        message_list = []
-        for r in recipients:
-            msg = Message(
-                sender=sender,
-                receiver=r,
-                subject=subject,
-                body=body,
-                file=file,
-            )
-            if parent_msg is not None:
-                msg.parent_msg = parent_msg
-                parent_msg.save()
-            msg.save()
-            message_list.append(msg)
-        return message_list
+                           widget=forms.Textarea(attrs={'rows': '12', 'cols': '55'}), max_length=250, required=True)
+    file = forms.FileField(required=False)
+    recipients = forms.MultipleChoiceField(required=True, widget=forms.CheckboxSelectMultiple)
 
 
 class GroupForm(forms.Form):
@@ -137,6 +110,14 @@ class GroupForm(forms.Form):
     title = forms.CharField(required=True, max_length=70, label="The title of the group:")
     members = forms.MultipleChoiceField(required=True, widget=forms.CheckboxSelectMultiple,
                                         label="Choose the members of the group:")
+
+
+class AddGroupForm(forms.Form):
+    """
+    Add multiple groups to the recipients lists.
+    """
+    groups = forms.MultipleChoiceField(required=True, widget=forms.CheckboxSelectMultiple,
+                                       label="Choose the group:")
 
 
 

@@ -119,6 +119,13 @@
               Trash box
             </a>
           </li>
+
+          <li class="nav-item">
+            <a class="nav-link {% block send_message_tag %} {% endblock %}" href="{% url 'core:send_message' %}">
+              <span data-feather="mail"></span>
+              Send Message
+            </a>
+          </li>
         </ul>
                     {% endif %}
                 {% endblock %}
