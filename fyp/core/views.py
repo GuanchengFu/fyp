@@ -178,6 +178,9 @@ def user_logout(request):
 
 @login_required
 def show_dashboard(request):
+    """
+    Show the dashboard of the user.
+    """
     if request.method == 'GET':
         context = {}
         # The user should have logged in based on the decorator @login_required
@@ -199,6 +202,17 @@ def show_dashboard(request):
 
 @login_required
 def upload_file(request):
+    """
+    A view to let the user upload the file.
+    The uploaded file will be saved as a File object.
+    user: request.user
+    description: Uploaded in the form.
+    file: Uploaded in the form.
+    name: Will be auto recorded as the file name.
+    This can lead to FileExistError.
+    created: Auto created.
+    modified: When the description or the name of the file is changed.
+    """
     if request.method == "POST":
         form = FileForm(request.POST, request.FILES)
 
@@ -234,6 +248,7 @@ def upload_file(request):
 @login_required
 def edit_file(request, file_id):
     context = {}
+    user = request.user
     try:
         file = File.objects.get(id=file_id)
         context['file'] = file
@@ -359,14 +374,27 @@ def connection(request,):
         return render(request, 'core/connection_professor.html', context_dict)
 
 
-def get_related_choices(user):
+def get_related_candidates(user):
     """
     Return a list with all the related students for a professor.
+    user: A professor's user object.
     """
     result = []
     students = user.professor.students.all()
     for student in students:
         result.append((student.user.username, student.user.username))
+    return result
+
+
+def get_related_professors(user):
+    """
+    Return a list with all the related professors for a candidates.
+    user: A user candidate.
+    """
+    result = []
+    professors = user.candidate.professor.all()
+    for professor in professors:
+        result.append((professor.user.username, professor.user.username))
     return result
 
 
@@ -389,7 +417,7 @@ def create_group(request,):
     if request.method == "GET":
         form = GroupForm()
         # Set the choices field for the member fields.
-        form.fields['members'].choices = get_related_choices(request.user)
+        form.fields['members'].choices = get_related_candidates(request.user)
         return render(request, 'core/create_group.html',
                       {'form': form, })
     # The request is a POST method.
@@ -398,7 +426,7 @@ def create_group(request,):
         We need to set the choices field for the form, so that it can validates itself.
         """
         form = GroupForm(request.POST)
-        form.fields['members'].choices = get_related_choices(request.user)
+        form.fields['members'].choices = get_related_candidates(request.user)
         if form.is_valid():
             members = form.cleaned_data['members']
             title = form.cleaned_data['title']
@@ -423,7 +451,7 @@ def send_message(request,):
     if request.method == "POST":
         sender = request.user
         message_form = ComposeForm(request.POST, request.FILES)
-        message_form.fields['recipients'].choices = get_related_choices(request.user)
+        message_form.fields['recipients'].choices = get_related_candidates(request.user)
         group_form = AddGroupForm(request.POST)
         group_form.fields['groups'].choices = get_related_groups(request.user)
         if message_form.is_valid() and group_form.is_valid():
@@ -453,7 +481,7 @@ def send_message(request,):
         2. When the user add group into the members.
         """
         form_message = ComposeForm()
-        form_message.fields['recipients'].choices = get_related_choices(request.user)
+        form_message.fields['recipients'].choices = get_related_candidates(request.user)
         form_group = AddGroupForm()
         form_group.fields['groups'].choices = get_related_groups(request.user)
         context_dict['form_message'] = form_message

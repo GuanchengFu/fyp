@@ -39,7 +39,7 @@ class RegisterUserForm(UserForm):
     """
     This form includes an additional attribute known as:
     @arg identity to help the server decide the identity of the user.
-	"""
+    """
     identity = forms.CharField(label='What is your identity?',
                                widget=forms.Select(choices=IDENTITY_CHOICES))
 
