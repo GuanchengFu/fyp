@@ -4,6 +4,8 @@ from django.contrib.auth import get_user_model
 from core.models import UserProfessor, UserCandidate, User, File, Message
 from core.fields import CommaSeparatedUserField
 from django.utils.translation import ugettext_lazy as _
+
+
 class FileForm(forms.ModelForm):
     class Meta:
         model = File
@@ -91,11 +93,29 @@ class ComposeForm(forms.Form):
     recipient_filter: a function which receives a user object and returns a boolean
                      whether it is an allowed recipient or not.
     """
-    subject = forms.CharField(label=_(u"Subject"), max_length=70, required=True)
+    subject = forms.CharField(label=_(u"Subject"), max_length=70)
     body = forms.CharField(label=_(u"Body"),
-                           widget=forms.Textarea(attrs={'rows': '12', 'cols': '55'}), max_length=250, required=True)
+                           widget=forms.Textarea(attrs={'rows': '12', 'cols': '55'}), max_length=250)
     file = forms.FileField(required=False)
-    recipients = forms.MultipleChoiceField(required=True, widget=forms.CheckboxSelectMultiple)
+    recipients = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple)
+
+    def save(self, sender,):
+        recipients = self.cleaned_data['recipients']
+        subject = self.cleaned_data['subject']
+        body = self.cleaned_data['body']
+        file = self.cleaned_data['file']
+        message_list = []
+        for r in recipients:
+            message = Message(
+                subject=subject,
+                body=body,
+                sender=sender,
+                receiver=User.objects.get(username=r),
+                file=file,
+            )
+            message.save()
+            message_list.append(message)
+        return message_list
 
 
 class GroupForm(forms.Form):
@@ -116,7 +136,7 @@ class AddGroupForm(forms.Form):
     """
     Add multiple groups to the recipients lists.
     """
-    groups = forms.MultipleChoiceField(required=True, widget=forms.CheckboxSelectMultiple,
+    groups = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple,
                                        label="Choose the group:")
 
 

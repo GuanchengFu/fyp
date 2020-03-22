@@ -23,4 +23,5 @@ urlpatterns = [
 	path('dashboard/messages/trash', views.trash, name='trash_box'),
 	path('dashboard/connection', views.connection, name='connection'),
 	path('dashboard/connection/createGroup', views.create_group, name='create_group'),
+	path('view/<int:message_id>', views.view_message, name='view_message'),
 ]

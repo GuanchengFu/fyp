@@ -60,7 +60,7 @@
                 </td>
 
                 <td>
-                    <a href="#" class="btn btn-primary btn-sm">Check</a>
+                    <a href="{% url 'core:view_message' message.id %}" class="btn btn-primary btn-sm">Check</a>
                 </td>
             </tr>
             {% endfor %}

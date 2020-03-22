@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.urls import reverse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from core.forms import UserForm, UserProfessorForm, UserCandidateForm, IdentityForm, FileForm, editFileForm
@@ -422,21 +422,68 @@ def send_message(request,):
     context_dict = {}
     if request.method == "POST":
         sender = request.user
-        form = ComposeForm(request.POST, request.FILES)
-        form.fields['recipients'].choices = get_related_choices(request.user)
-        uploaded_file = request.FILES['file']
-        if form.is_valid():
-            form.save(sender=request.user)
-            return HttpResponse("Message sent!")
+        message_form = ComposeForm(request.POST, request.FILES)
+        message_form.fields['recipients'].choices = get_related_choices(request.user)
+        group_form = AddGroupForm(request.POST)
+        group_form.fields['groups'].choices = get_related_groups(request.user)
+        if message_form.is_valid() and group_form.is_valid():
+            groups = group_form.cleaned_data['groups']
+            recipients = message_form.cleaned_data['recipients']
+            if groups or recipients:
+                """
+                Have recipients, the form should be saved.
+                """
+                if groups:
+                    for group in groups:
+                        g = Group.objects.get(id=group)
+                        for u in g.members.all():
+                            if u not in recipients:
+                                recipients.append(u)
+                message_form.fields['recipients'] = recipients
+                message_form.save(request.user)
+                return redirect('core:dashboard')
+            else:
+                return HttpResponse("Recipients are none.")
+        else:
+            print(message_form.errors, group_form.errors)
     else:
-        print(request.GET)
-        form_message = ComposeForm(initial={"subject": request.GET.get("subject", "")})
+        """
+        The get method includes two conditions:
+        1. When the user first uses this function.
+        2. When the user add group into the members.
+        """
+        form_message = ComposeForm()
         form_message.fields['recipients'].choices = get_related_choices(request.user)
         form_group = AddGroupForm()
         form_group.fields['groups'].choices = get_related_groups(request.user)
         context_dict['form_message'] = form_message
         context_dict['form_group'] = form_group
     return render(request, 'core/send_message.html', context_dict)
+
+
+@login_required
+def view_message(request, message_id):
+    """
+    Show a single message.
+    message_id: The id of the message in the database.
+    May need to distinguish between reply message or send message.
+    Should include a upload_file form if the user wants to upload the attached files into their system.
+    """
+    user = request.user
+    message = get_object_or_404(Message, id=message_id)
+    if (message.sender != user) and (message.receiver != user):
+        raise Http404
+    if message.is_read is False and message.receiver == user:
+        message.is_read = True
+        message.save()
+    context = {'message': message, 'reply_form': None}
+    if message.file:
+        context['save_form'] = FileForm(initial={'file': message.file})
+    else:
+        context['save_form'] = None
+    return render(request, 'core/view_message.html', context)
+    # May need to give a form for replying the message.
+
 
 
 
