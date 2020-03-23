@@ -367,11 +367,16 @@ def connection(request,):
         # User is professor, acquire all his candidates and groups into the context_dict.
         candidates = user.professor.students.all()
         context_dict['candidates'] = candidates
+        context_dict['collaborated_professors'] = user.professor.collaborated_professors.all()
 
         # Acquire all the groups created by the professor.
         group_created = user.professor.created_groups.all()
         context_dict['created_groups'] = group_created
-        return render(request, 'core/connection_professor.html', context_dict)
+        return render(request, 'core/connection.html', context_dict)
+    elif user.is_candidate:
+        professors = user.candidate.professor.all()
+        context_dict['professors'] = professors
+        return render(request, 'core/connection.html', context_dict)
 
 
 def get_related_candidates(user):
@@ -393,6 +398,14 @@ def get_related_professors(user):
     """
     result = []
     professors = user.candidate.professor.all()
+    for professor in professors:
+        result.append((professor.user.username, professor.user.username))
+    return result
+
+
+def get_collaborated_professors(user):
+    result = []
+    professors = user.professor.collaborated_professors.all()
     for professor in professors:
         result.append((professor.user.username, professor.user.username))
     return result
@@ -447,45 +460,56 @@ def send_message(request,):
     The view to allow the user to send messages to other users.
     This is not the same to reply message.
     """
+    user = request.user
     context_dict = {}
     if request.method == "POST":
-        sender = request.user
+        sender = user
         message_form = ComposeForm(request.POST, request.FILES)
-        message_form.fields['recipients'].choices = get_related_candidates(request.user)
-        group_form = AddGroupForm(request.POST)
-        group_form.fields['groups'].choices = get_related_groups(request.user)
-        if message_form.is_valid() and group_form.is_valid():
-            groups = group_form.cleaned_data['groups']
-            recipients = message_form.cleaned_data['recipients']
-            if groups or recipients:
-                """
-                Have recipients, the form should be saved.
-                """
-                if groups:
-                    for group in groups:
-                        g = Group.objects.get(id=group)
-                        for u in g.members.all():
-                            if u not in recipients:
-                                recipients.append(u)
-                message_form.fields['recipients'] = recipients
-                message_form.save(request.user)
-                return redirect('core:dashboard')
+        if user.is_professor:
+            choices = get_related_candidates(user) + get_collaborated_professors(user)
+            group_form = AddGroupForm(request.POST)
+            group_form.fields['groups'].choices = get_related_groups(user)
+            message_form.fields['recipients'].choices = choices
+
+            if message_form.is_valid() and group_form.is_valid():
+                groups = group_form.cleaned_data['groups']
+                recipients = message_form.cleaned_data['recipients']
+                if groups or recipients:
+                    """
+                    Have recipients, the form should be saved.
+                    """
+                    if groups:
+                        for group in groups:
+                            g = Group.objects.get(id=group)
+                            for u in g.members.all():
+                                if u not in recipients:
+                                    recipients.append(u)
+                    message_form.fields['recipients'] = recipients
+                    message_form.save(request.user)
+                    return redirect('core:outbox')
             else:
-                return HttpResponse("Recipients are none.")
-        else:
-            print(message_form.errors, group_form.errors)
+                print(message_form.errors, group_form.errors)
+        elif user.is_candidate:
+            choices = get_related_professors(user)
+            message_form.fields['recipients'].choices = choices
+            if message_form.is_valid():
+                message_form.save(user)
+                return redirect('core:outbox')
+
     else:
-        """
-        The get method includes two conditions:
-        1. When the user first uses this function.
-        2. When the user add group into the members.
-        """
         form_message = ComposeForm()
-        form_message.fields['recipients'].choices = get_related_candidates(request.user)
-        form_group = AddGroupForm()
-        form_group.fields['groups'].choices = get_related_groups(request.user)
+        if user.is_professor:
+            choices = get_related_candidates(user) + get_collaborated_professors(user)
+            form_group = AddGroupForm()
+            form_group.fields['groups'].choices = get_related_groups(request.user)
+            context_dict['form_group'] = form_group
+        elif user.is_candidate:
+            choices = get_related_professors(user)
+            context_dict['form_group'] = None
+
+        form_message.fields['recipients'].choices = choices
         context_dict['form_message'] = form_message
-        context_dict['form_group'] = form_group
+
     return render(request, 'core/send_message.html', context_dict)
 
 
@@ -506,12 +530,52 @@ def view_message(request, message_id):
         message.save()
     context = {'message': message, 'reply_form': None}
     if message.file:
-        context['save_form'] = FileForm(initial={'file': message.file})
+        """
+        Allow the user to save the file included in the message.
+        """
+        save_form = FileForm(initial={'file': message.file})
+        context['save_form'] = save_form
+        context['file'] = message.file
     else:
         context['save_form'] = None
     return render(request, 'core/view_message.html', context)
     # May need to give a form for replying the message.
 
+
+@login_required
+def save_file(request, message_id):
+    """
+    Save the file which is included in the message.
+    Two different conditions:
+    1. The user has changed the file, which is included in the request.FILES
+    2. The original file is uploaded.
+    """
+    if request.method == 'POST':
+        if 'file' in request.FILES:
+            # User has a new uploaded file.
+            form = FileForm(request.POST, request.FILES)
+            uploaded_file = request.FILES['file']
+            if form.is_valid():
+                file_uploaded = form.save(commit=False)
+                file_uploaded.user = request.user
+                file_uploaded.name = uploaded_file.name
+                file_uploaded.save()
+                return redirect('core:dashboard')
+            else:
+                print(form.errors)
+        else:
+            # The original file is uploaded, which is in file.
+            form = FileForm(request.POST, request.FILES)
+            file = Message.objects.get(id=message_id).file
+            f = open(file.path, mode='rb')
+            share_file = File_Django(f)
+            file_model = File()
+            file_model.description = form.fields['description']
+            file_model.user = request.user
+            file_model.name = filename(share_file)
+            file_model.file.save(filename(share_file.name), share_file)
+            file_model.save()
+            return redirect('core:dashboard')
 
 
 

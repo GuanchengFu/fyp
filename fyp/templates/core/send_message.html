@@ -17,16 +17,19 @@
         <table>
         {{ form_message.as_table }}
         </table>
-        <a class="btn btn-primary" href="#groupfields" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="groupfields">
-            Sent to groups
-        </a>
 
-        <div class="collapse" id="groupfields">
-          <div class="card card-body">
-            {{ form_group.as_p }}
-          </div>
-          <p>The repeat users will only be sent once.</p>
-        </div>
+        {% if form_group %}
+            <a class="btn btn-primary" href="#groupfields" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="groupfields">
+                Sent to groups
+            </a>
+
+            <div class="collapse" id="groupfields">
+              <div class="card card-body">
+                {{ form_group.as_p }}
+              </div>
+              <p>The repeat users will only be sent once.</p>
+            </div>
+        {% endif %}
 
         <br>
         <br>

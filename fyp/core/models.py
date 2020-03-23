@@ -152,7 +152,7 @@ class UserProfessor(models.Model):
     Each professor should has a one-to-one relationship with a User object.
     """
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, related_name='professor')
-
+    collaborated_professors = models.ManyToManyField('self', related_name='collaborated_professors')
     # picture will be uploaded to MEDIA_ROOT/professor_images
     picture = models.ImageField(upload_to='professor_images', blank=True)
 
@@ -252,19 +252,6 @@ class Message(models.Model):
         ordering = ['sent_at']
 
 
-class GroupManager(models.Manager):
-    """
-    A customizing class which is used to return the group created by the user.
-    """
-    def involved_in(self, user):
-        """
-        Return all groups where the user is involved in.
-        """
-        return self.filter(
-            member=user,
-        )
-
-
 class Group(models.Model):
     """
     A group created by one of the professor.
@@ -281,5 +268,6 @@ class Group(models.Model):
     title = models.CharField(max_length=70, blank=False)
     creator = models.ForeignKey(UserProfessor, related_name="created_groups", on_delete=models.CASCADE)
     members = models.ManyToManyField(UserCandidate, related_name="participants")
+
 
 

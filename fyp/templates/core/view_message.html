@@ -47,13 +47,13 @@
           </div>
           <div class="modal-body">
               <!-- Later change this action so that it will redirect to the page which can handle this request. -->
-            <form method="post" action="#">
+            <form method="post" action="{% url 'core:save_file_in_message' message.id %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ save_form.as_p }}
               <div class="modal-footer">
                 <!-- One way to do this is to use a redirect button like <a>-->
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-primary">Send</button>
+                <button type="submit" class="btn btn-primary">Save</button>
               </div>
             </form>
           </div>
