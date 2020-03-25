@@ -9,6 +9,7 @@ from core.forms import sendMessageForm, ComposeForm, GroupForm, AddGroupForm
 from core.models import File, Message, Group
 from django.core.files import File as File_Django
 import os
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -550,32 +551,46 @@ def save_file(request, message_id):
     1. The user has changed the file, which is included in the request.FILES
     2. The original file is uploaded.
     """
-    if request.method == 'POST':
+    user = request.user
+    message = get_object_or_404(Message, id=message_id)
+    if (message.sender != user) and (message.receiver != user):
+        raise Http404
+    if request.method == "POST":
+        # First condition:
         if 'file' in request.FILES:
-            # User has a new uploaded file.
             form = FileForm(request.POST, request.FILES)
-            uploaded_file = request.FILES['file']
+            file = request.FILES['file']
             if form.is_valid():
-                file_uploaded = form.save(commit=False)
-                file_uploaded.user = request.user
-                file_uploaded.name = uploaded_file.name
-                file_uploaded.save()
+                save_form = form.save(commit=False)
+                save_form.user = user
+                save_form.name = file.name
+                save_form.save()
                 return redirect('core:dashboard')
             else:
                 print(form.errors)
         else:
-            # The original file is uploaded, which is in file.
+            # Second condition.
             form = FileForm(request.POST, request.FILES)
-            file = Message.objects.get(id=message_id).file
+            file = message.file
             f = open(file.path, mode='rb')
-            share_file = File_Django(f)
-            file_model = File()
-            file_model.description = form.fields['description']
-            file_model.user = request.user
-            file_model.name = filename(share_file)
-            file_model.file.save(filename(share_file.name), share_file)
-            file_model.save()
+            file_django = File_Django(f)
+            file_object = File()
+
+            file_object.created = timezone.now()
+
+            file_object.description = request.POST['description']
+            file_object.name = filename(file.name)
+            file_object.user = user
+            """
+            This can lead to the change in file name.  
+            For instance: It might be the case that the user already has a file with the name 
+            file.name.
+            """
+            file_object.file.save(filename(file_django.name), file_django)
+            file_object.save()
             return redirect('core:dashboard')
+    else:
+        raise Http404
 
 
 

@@ -66,17 +66,17 @@ class File(models.Model):
         https://stackoverflow.com/questions/1355150/when-saving-how-can-you-check-if-a-field-has-changed
         """
         if self.name != self.__original_name:
+            """
+            Need to handle the fileExistError.
+            Two different cases:
+            1. When the user upload the file.  Then make sure the file.name is the same as its name in the database.
+            2. Change name to a already existed name.  Then maybe just abort this action.
+            """
             new_path = os.path.join(os.path.dirname(self.file.path), self.name)
-        """
-        Need to handle the fileExistError.
-        Two different cases:
-        1. When the user upload the file.  Then make sure the file.name is the same as its name in the database.
-        2. Change name to a already existed name.  Then maybe just abort this action.
-        """
-        try:
-            os.rename(self.file.path, new_path)
-        except FileExistsError:
-            self.name = os.path.basename(self.file.path)
+            try:
+                os.rename(self.file.path, new_path)
+            except FileExistsError:
+                self.name = os.path.basename(self.file.path)
         super().save(*args, **kwargs)
         self.__original_name = self.name
 
