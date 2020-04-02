@@ -98,7 +98,8 @@ def professor_register(request):
 
             registered = True
 
-            new_user = authenticate(email=user_form.cleaned_data['email'], password=user_form.cleaned_data['password'])
+            new_user = authenticate(email=user_form.cleaned_data['email'], password=user_form.cleaned_data['password'],
+                                    key="UserLogIn")
 
             login(request, new_user)
 
@@ -150,7 +151,8 @@ def candidate_register(request):
 
             registered = True
 
-            new_user = authenticate(email=user_form.cleaned_data['email'], password=user_form.cleaned_data['password'])
+            new_user = authenticate(email=user_form.cleaned_data['email'], password=user_form.cleaned_data['password'],
+                                    key="UserLogIn")
 
             login(request, new_user)
 

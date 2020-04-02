@@ -1,13 +1,15 @@
 from datetime import datetime
 import os
+
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.conf import settings
 from django.dispatch import receiver
-
 # Later on, change the store position of the files so that it looks the same as the way user stores it.
 
 # Further improvement may be found at:
@@ -31,7 +33,6 @@ def file_location_path(instance, filename):
 """.
 Possible reference for DateField:
 https://stackoverflow.com/questions/1737017/django-auto-now-and-auto-now-add
-
 There should not have two files with the same name in the folder.
 """
 
@@ -85,18 +86,6 @@ class File(models.Model):
 
     def __str__(self):
         return self.description
-
-
-@receiver(models.signals.post_delete, sender=File)
-def auto_delete_files_on_file_object(sender, instance, **kwargs):
-    """
-    When the File object is deleted, this method will be called.
-    reference:
-    https://stackoverflow.com/questions/16041232/django-delete-filefield
-    """
-    if instance.file:
-        if os.path.isfile(instance.file.path):
-            os.remove(instance.file.path)
 
 
 class UserManager(models.Manager):
@@ -268,5 +257,95 @@ class Group(models.Model):
     creator = models.ForeignKey(UserProfessor, related_name="created_groups", on_delete=models.CASCADE)
     members = models.ManyToManyField(UserCandidate, related_name="participants")
 
+
+class Notifications(models.Model):
+    """
+    A notification model.
+    Generalized format:
+    <actor> <verb> <action_object> <target> <time>
+    <mitsuhiko> <closed> <issue 70> on <mitsuhiko/flask> <about 2 hours ago>
+    """
+    recipient = models.ForeignKey(
+        get_user_model(),
+        blank=False,
+        related_name='notifications',
+        on_delete=models.CASCADE
+    )
+    unread = models.BooleanField(default=True, blank=False,)
+    """
+    This part is based on the following reference:
+    https://docs.djangoproject.com/en/3.0/ref/contrib/contenttypes/
+    actor is a generic foreignkey which means that it can points to different models.
+    """
+    # actor
+    actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor', on_delete=models.CASCADE)
+    actor_object_id = models.CharField(max_length=255)
+    actor = GenericForeignKey('actor_content_type', 'actor_object_id')
+
+    # verb
+    verb = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+
+    # target
+    target_content_type = models.ForeignKey(
+        ContentType,
+        related_name='notify_target',
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE
+    )
+    target_object_id = models.CharField(max_length=255, blank=True, null=True)
+    target = GenericForeignKey('target_content_type', 'target_object_id')
+
+    # Action object
+    action_object_content_type = models.ForeignKey(ContentType, blank=True, null=True,
+                                                   related_name='notify_action_object', on_delete=models.CASCADE)
+    action_object_object_id = models.CharField(max_length=255, blank=True, null=True)
+    action_object = GenericForeignKey('action_object_content_type', 'action_object_object_id')
+
+    # The notification time.
+    timestamp = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        """
+        Return the string representation of a notification.
+        """
+        ctx = {
+            'actor': self.actor,
+            'verb': self.verb,
+            'action_object': self.action_object,
+            'target': self.target,
+            'timesince': self.timesince()
+        }
+        if self.target:
+            if self.action_object:
+                return u'%(actor)s %(verb)s %(action_object)s on %(target)s %(timesince)s ago' % ctx
+            return u'%(actor)s %(verb)s %(target)s %(timesince)s ago' % ctx
+        if self.action_object:
+            return u'%(actor)s %(verb)s %(action_object)s %(timesince)s ago' % ctx
+        return u'%(actor)s %(verb)s %(timesince)s ago' % ctx
+
+    def timesince(self, now=None):
+        """
+        Return the time from timestamp to now.
+        """
+        from django.utils.timesince import timesince as timesince_
+        return timesince_(self.timestamp, now)
+
+    def mark_as_read(self):
+        if self.unread:
+            self.unread = False
+            self.save()
+
+    def mark_as_unread(self):
+        if not self.unread:
+            self.unread = True
+            self.save()
+
+    
+
+
+
+    
 
 
