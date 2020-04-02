@@ -27,15 +27,15 @@ def index(request):
             email = request.POST.get('email')
             password = request.POST.get('password')
 
-            user = authenticate(email=email, password=password)
+            user = authenticate(email=email, password=password, key="UserLogIn")
 
             if user:
-                if user.is_active:
-
+                # Only log the user in if he is not one of the staffs.
+                if user.is_candidate or user.is_professor:
                     login(request, user)
                     return redirect('core:dashboard')
                 else:
-                    return HttpResponse("Your account is disabled.")
+                    return HttpResponse("You are a staff of this website, try using another site for logging in.")
             else:
                 # Bad login details are provided.  The user cannot login.
                 print("Invalid login details: {0}, {1}".format(email, password))

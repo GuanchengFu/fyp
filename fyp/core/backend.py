@@ -8,10 +8,16 @@ class EmailBackend(ModelBackend):
     reference:
     https://docs.djangoproject.com/en/3.0/topics/auth/customizing/
     """
-    def authenticate(self, request, email=None, password=None, **kwargs):
+    def authenticate(self, request, email=None, password=None, key=None, **kwargs):
+        """
+        The key argument is used for staff login.
+        """
         UserModel = get_user_model()
         try:
-            user = UserModel.objects.get(email=email)
+            if key is None:
+                user = UserModel.objects.get(email=kwargs['username'])
+            else:
+                user = UserModel.objects.get(email=email)
         except UserModel.DoesNotExist:
             return None
         else:

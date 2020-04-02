@@ -130,7 +130,6 @@ class User(AbstractUser):
     """
     # USERNAME_FIELD = 'email'
     email = models.EmailField(_('email address'), unique=True)
-    # REQUIRED_FIELDS = ('username', 'password')
     is_professor = models.BooleanField('professor status', default=False)
     is_candidate = models.BooleanField('candidate status', default=False)
 
