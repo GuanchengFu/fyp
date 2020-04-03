@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from core.forms import UserForm, UserProfessorForm, UserCandidateForm, IdentityForm, FileForm, editFileForm
 from core.forms import sendMessageForm, ComposeForm, GroupForm, AddGroupForm
+from core.helper_functions import generate_time_prefix
 from core.models import File, Message, Group
 from django.core.files import File as File_Django
 import os
@@ -222,6 +223,7 @@ def upload_file(request):
         # An instance of class UploadedFile
         uploaded_file = request.FILES['file']
         if form.is_valid():
+            # file is the File object while the uploaded_file is the file object.
             file = form.save(commit=False)
             file.user = request.user
             # upload_file.name is only the name of the file, rather than the path.

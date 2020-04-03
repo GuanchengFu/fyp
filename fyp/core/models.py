@@ -3,12 +3,14 @@ import os
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.dispatch import receiver
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.apps import apps
+from core.helper_functions import generate_time_prefix
 
 # Later on, change the store position of the files so that it looks the same as the way user stores it.
 
@@ -49,10 +51,6 @@ class File(models.Model):
 
     __original_name = None
 
-    def __init__(self, *args, **kwargs):
-        super(File, self).__init__(*args, **kwargs)
-        self.__original_name = self.name
-
     def save(self, *args, **kwargs):
         # if the object is newly created:
         if not self.id:
@@ -64,21 +62,30 @@ class File(models.Model):
         file name in the form.
         reference:
         https://stackoverflow.com/questions/1355150/when-saving-how-can-you-check-if-a-field-has-changed
+            new_name = generate_time_prefix(self.name)
+            new_path = os.path.join(os.path.dirname(self.file.path), new_name)
+            os.rename(self.file.path, new_path)
+            self.__original_name = self.name
         """
         if self.name != self.__original_name:
             """
-            Need to handle the fileExistError.
-            Two different cases:
-            1. When the user upload the file.  Then make sure the file.name is the same as its name in the database.
-            2. Change name to a already existed name.  Then maybe just abort this action.
+            2 conditions:
+            1. The file is newly created so that the __original_name is blank
+            2. The user has changed the file name.
             """
-            new_path = os.path.join(os.path.dirname(self.file.path), self.name)
-            try:
-                os.rename(self.file.path, new_path)
-            except FileExistsError:
-                self.name = os.path.basename(self.file.path)
-        super().save(*args, **kwargs)
-        self.__original_name = self.name
+            if self.__original_name is None:
+                # The file is newly created.
+                new_name = generate_time_prefix(self.name)
+            else:
+                # The user changed the file name.
+                original_name = os.path.basename(self.file.path)
+                new_name = original_name[0:13] + self.name
+            new_path = os.path.join(os.path.dirname(self.file.path), new_name)
+            os.rename(self.file.path, new_path)
+            self.file.name = os.path.dirname(self.file.name) + '/' + new_name
+            self.__original_name = self.name
+            super().save(*args, **kwargs)
+
 
     class Meta:
         verbose_name_plural = "Files"
