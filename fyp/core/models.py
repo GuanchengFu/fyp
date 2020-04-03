@@ -8,6 +8,8 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.apps import apps
+
 # Later on, change the store position of the files so that it looks the same as the way user stores it.
 
 # Further improvement may be found at:
@@ -255,7 +257,18 @@ class Group(models.Model):
     members = models.ManyToManyField(UserCandidate, related_name="participants")
 
 
-class Notifications(models.Model):
+class NotificationManager(models.Manager):
+    """
+    A customizing manager calss which is used to return some useful queryset.
+    """
+    def unread(self, user):
+        return self.filter(
+            recipient=user,
+            unread=True,
+        )
+
+
+class Notification(models.Model):
     """
     A notification model.
     Generalized format:
@@ -302,6 +315,7 @@ class Notifications(models.Model):
 
     # The notification time.
     timestamp = models.DateTimeField(default=timezone.now)
+    objects = NotificationManager()
 
     def __str__(self):
         """
@@ -343,12 +357,13 @@ class Notifications(models.Model):
 def notify_handler(verb, **kwargs):
     """
     Handler function to create Notification instance upon action signal call.
-    recipient: A Group or a User QuerySet or a list of User.
+    recipient: A list of Users.
+    Set up a list of Notifications.
     """
     # Pull the options out of kwargs
     kwargs.pop('signal', None)
     recipient = kwargs.pop('recipient')
-    actor = kwargs.pop('sender')
+    actor = kwargs.pop('actor')
     # Possible cases of optional_objs = [('John', 'target'), ('dictionary', 'action_object')]
     optional_objs = [
         (kwargs.pop(opt, None), opt)
@@ -356,16 +371,8 @@ def notify_handler(verb, **kwargs):
     ]
     description = kwargs.pop('description', None)
     timestamp = kwargs.pop('timestamp', timezone.now())
-    Notification = load_model('notifications', 'Notification')
 
-    # Check if User or Group
-    if isinstance(recipient, Group):
-        recipients = recipient.user_set.all()
-    elif isinstance(recipient, (QuerySet, list)):
-        recipients = recipient
-    else:
-        recipients = [recipient]
-
+    recipients = recipient
     new_notifications = []
 
     for recipient in recipients:
@@ -374,12 +381,13 @@ def notify_handler(verb, **kwargs):
             actor_content_type=ContentType.objects.get_for_model(actor),
             actor_object_id=actor.pk,
             verb=str(verb),
-            public=public,
             description=description,
             timestamp=timestamp,
-            level=level,
         )
 
+        """
+        Possible cases of optional_objs = [('John', 'target'), ('dictionary', 'action_object')]
+        """
         # Set optional objects
         for obj, opt in optional_objs:
             if obj is not None:
@@ -387,13 +395,12 @@ def notify_handler(verb, **kwargs):
                 setattr(newnotify, '%s_content_type' % opt,
                         ContentType.objects.get_for_model(obj))
 
-        if kwargs and EXTRA_DATA:
-            newnotify.data = kwargs
-
         newnotify.save()
         new_notifications.append(newnotify)
 
     return new_notifications
+
+
 
 
 

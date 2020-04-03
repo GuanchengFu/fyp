@@ -1,8 +1,8 @@
 import datetime
 
 
-def generate_file_name(time, filename):
+def generate_time_prefix():
 	"""
-	Rename the file as 202004021726
+	Return ddmmyyhhmmss format of the current time.
 	"""
-	return '{%Y%m%d%H%M%S}'.format(datetime.datetime.now()) + filename
+	return datetime.datetime.now().strftime('%d%m%y%I%M%S')
