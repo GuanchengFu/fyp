@@ -9,3 +9,4 @@ class CoreConfig(AppConfig):
 
     def ready(self):
         import core.signals
+        from core.signals import notify

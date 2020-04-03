@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 from django.db import models
 from django.dispatch import Signal
-from core.models import File
+from core.models import File, notify_handler
 import os
 
 
@@ -20,5 +20,8 @@ def auto_delete_files_on_file_object(sender, instance, **kwargs):
 # A customizing signal.
 notify = Signal(providing_args=[  # pylint: disable=invalid-name
     'recipient', 'actor', 'verb', 'action_object', 'target', 'description',
-    'timestamp', 'level'
+    'timestamp'
 ])
+
+# connect the signal
+notify.connect(notify_handler, dispatch_uid='core.notifications')

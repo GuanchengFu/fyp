@@ -8,13 +8,10 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.conf import settings
-from django.dispatch import receiver
 # Later on, change the store position of the files so that it looks the same as the way user stores it.
 
 # Further improvement may be found at:
 # https://docs.djangoproject.com/en/2.2/topics/http/file-uploads/#upload-handlers
-
 
 """
 One folder may belongs to:
@@ -342,7 +339,64 @@ class Notifications(models.Model):
             self.unread = True
             self.save()
 
-    
+
+def notify_handler(verb, **kwargs):
+    """
+    Handler function to create Notification instance upon action signal call.
+    recipient: A Group or a User QuerySet or a list of User.
+    """
+    # Pull the options out of kwargs
+    kwargs.pop('signal', None)
+    recipient = kwargs.pop('recipient')
+    actor = kwargs.pop('sender')
+    # Possible cases of optional_objs = [('John', 'target'), ('dictionary', 'action_object')]
+    optional_objs = [
+        (kwargs.pop(opt, None), opt)
+        for opt in ('target', 'action_object')
+    ]
+    description = kwargs.pop('description', None)
+    timestamp = kwargs.pop('timestamp', timezone.now())
+    Notification = load_model('notifications', 'Notification')
+
+    # Check if User or Group
+    if isinstance(recipient, Group):
+        recipients = recipient.user_set.all()
+    elif isinstance(recipient, (QuerySet, list)):
+        recipients = recipient
+    else:
+        recipients = [recipient]
+
+    new_notifications = []
+
+    for recipient in recipients:
+        newnotify = Notification(
+            recipient=recipient,
+            actor_content_type=ContentType.objects.get_for_model(actor),
+            actor_object_id=actor.pk,
+            verb=str(verb),
+            public=public,
+            description=description,
+            timestamp=timestamp,
+            level=level,
+        )
+
+        # Set optional objects
+        for obj, opt in optional_objs:
+            if obj is not None:
+                setattr(newnotify, '%s_object_id' % opt, obj.pk)
+                setattr(newnotify, '%s_content_type' % opt,
+                        ContentType.objects.get_for_model(obj))
+
+        if kwargs and EXTRA_DATA:
+            newnotify.data = kwargs
+
+        newnotify.save()
+        new_notifications.append(newnotify)
+
+    return new_notifications
+
+
+
 
 
 
