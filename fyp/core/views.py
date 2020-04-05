@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout, get_user_model
-from core.forms import UserForm, UserProfessorForm, UserCandidateForm, IdentityForm, FileForm, editFileForm
+from core.forms import UserForm, UserProfessorForm, UserCandidateForm, IdentityForm, FileForm, EditFileForm
 from core.forms import sendMessageForm, ComposeForm, GroupForm, AddGroupForm
 from core.helper_functions import generate_time_prefix
 from core.models import File, Message, Group
@@ -261,13 +261,13 @@ def edit_file(request, file_id):
         context['file'] = None
 
     if request.method == "POST":
-        form = editFileForm(request.POST, instance=file)
+        form = EditFileForm(request.POST, instance=file)
         if form.is_valid():
             form.save()
         else:
             print(form.errors)
     else:
-        form = editFileForm(instance=file)
+        form = EditFileForm(instance=file)
     context['form'] = form
     share_form = sendMessageForm(initial={'file': file.file})
     context['share_form'] = share_form
@@ -596,6 +596,13 @@ def save_file(request, message_id):
     else:
         raise Http404
 
+
+@login_required
+def notifications_unread(request, ):
+    user = request.user
+    unread_list = user.notifications.unread()
+    context_dict = {'unread_notifications': unread_list}
+    return render(request, 'core/notification.html', context_dict)
 
 
 

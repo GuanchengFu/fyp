@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 
 {% load staticfiles %}
+{% load notification_tags %}
+
 
 <html lang="en">
 <head>
@@ -127,6 +129,32 @@
             </a>
           </li>
         </ul>
+
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+          <span>Notifications</span>
+          <a class="d-flex align-items-center text-muted" href="#">
+            <span data-feather="bell"></span>
+          </a>
+        </h6>
+        <ul class="nav flex-column mb-2">
+
+            <!--Add function: Mark all as read.-->
+          <li class="nav-item">
+            <a class="nav-link {% block Notification_tag %} {% endblock %}" href="{% url 'core:view_notifications' %}">
+              <span data-feather="info"></span>
+              Unread {% live_notify_badge badge_class="badge badge-secondary" %}
+            </a>
+          </li>
+
+            <!--Add function: Delete all read message.-->
+          <li class="nav-item">
+            <a class="nav-link {% block Notification2_tag %} {% endblock %}" href="{% url 'core:view_notifications' %}">
+              <span data-feather="info"></span>
+              All notifications
+            </a>
+          </li>
+        </ul>
+
                     {% endif %}
                 {% endblock %}
             </div>

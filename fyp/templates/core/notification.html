@@ -1,0 +1,29 @@
+{% extends 'core/base.html' %}
+
+
+{% block title_block %}
+    Notifications
+{% endblock %}
+
+
+{% block Notification_tag %}
+    active
+{% endblock %}
+
+{% block body_block %}
+        <!--A container for showing the header of the page. -->
+    <div class="jumbotron jumbotron-fluid">
+      <div class="container">
+        <h1 class="display-4">Notifications</h1>
+        <p class="lead">Checked the Notifications here.</p>
+      </div>
+    </div>
+
+    <ul class="notifications">
+      {% for notice in unread_notifications %}
+        {% include 'core/notice.html' %}
+      {% endfor %}
+    </ul>
+
+
+{% endblock %}

@@ -25,4 +25,5 @@ urlpatterns = [
 	path('dashboard/connection/createGroup', views.create_group, name='create_group'),
 	path('view/<int:message_id>', views.view_message, name='view_message'),
 	path('view/redirected/<int:message_id>/', views.save_file, name='save_file_in_message'),
+	path('dashboard/notifications', views.notifications_unread, name='view_notifications'),
 ]

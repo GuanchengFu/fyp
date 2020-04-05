@@ -1,0 +1,19 @@
+<div class="alert alert-block alert-{{ notice.level }}">
+  <a class="close pull-right" href="#">
+    <i class="icon-close"></i>
+  </a>
+
+  <h4>
+    <i class="icon-mail{% if notice.unread %}-alt{% endif %}"></i>
+    {{ notice.actor }}
+    {{ notice.verb }}
+    {% if notice.target %}
+      of {{ notice.target }}
+    {% endif %}
+  </h4>
+
+  <p>{{ notice.timesince }} ago</p>
+
+    <br>
+
+</div>

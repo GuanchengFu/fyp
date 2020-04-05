@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from core.models import UserProfessor, UserCandidate, User, File, Message
 from core.fields import CommaSeparatedUserField
 from django.utils.translation import ugettext_lazy as _
+from core.helper_functions import contain_invalid_char
 
 
 class FileForm(forms.ModelForm):
@@ -12,10 +13,16 @@ class FileForm(forms.ModelForm):
         fields = ('description', 'file',)
 
 
-class editFileForm(forms.ModelForm):
+class EditFileForm(forms.ModelForm):
     class Meta:
         model = File
         fields = ('description', 'name',)
+
+    def clean_name(self):
+        data = self.cleaned_data['name']
+        if contain_invalid_char(data):
+            raise forms.ValidationError('The file name cannot contain the following characters: \\ / : * ? " < > |')
+        return data
 
 
 class UserForm(forms.ModelForm):

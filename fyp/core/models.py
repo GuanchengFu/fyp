@@ -264,15 +264,12 @@ class Group(models.Model):
     members = models.ManyToManyField(UserCandidate, related_name="participants")
 
 
-class NotificationManager(models.Manager):
-    """
-    A customizing manager calss which is used to return some useful queryset.
-    """
-    def unread(self, user):
-        return self.filter(
-            recipient=user,
-            unread=True,
-        )
+class NotificationQuerySet(models.query.QuerySet):
+    """ Notification QuerySet """
+
+    def unread(self, include_deleted=False):
+        """Return only unread items in the current queryset"""
+        return self.filter(unread=True)
 
 
 class Notification(models.Model):
@@ -322,7 +319,8 @@ class Notification(models.Model):
 
     # The notification time.
     timestamp = models.DateTimeField(default=timezone.now)
-    objects = NotificationManager()
+
+    objects = NotificationQuerySet.as_manager()
 
     def __str__(self):
         """
@@ -414,6 +412,6 @@ def notify_handler(verb, **kwargs):
 
 
 
-    
+
 
 
