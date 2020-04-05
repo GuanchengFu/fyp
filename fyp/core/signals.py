@@ -20,7 +20,7 @@ def auto_delete_files_on_file_object(sender, instance, **kwargs):
 # A customizing signal.
 notify = Signal(providing_args=[  # pylint: disable=invalid-name
     'recipient', 'actor', 'verb', 'action_object', 'target', 'description',
-    'timestamp'
+    'timestamp', 'button_class',
 ])
 
 # connect the signal
@@ -38,7 +38,6 @@ def notify_new_message(sender, instance, created, **kwargs):
     time: The time since.
     """
     if created:
-        print(sender)
-        print(instance.sender)
-        notify.send(sender, actor=instance.sender, verb='has sent you a message', recipient=[instance.receiver])
+        notify.send(sender, actor=instance.sender, verb='has sent you a', recipient=[instance.receiver],
+                    action_object=instance, button_class='message', )
 

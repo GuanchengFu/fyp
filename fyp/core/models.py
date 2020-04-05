@@ -11,6 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.apps import apps
 from core.helper_functions import generate_time_prefix
+from model_utils import Choices
 
 # Later on, change the store position of the files so that it looks the same as the way user stores it.
 
@@ -245,6 +246,9 @@ class Message(models.Model):
     class Meta:
         ordering = ['sent_at']
 
+    def __str__(self):
+        return 'message'
+
 
 class Group(models.Model):
     """
@@ -292,6 +296,9 @@ class Notification(models.Model):
     actor is a generic foreignkey which means that it can points to different models.
     """
     # actor
+    # This button class is used to generate the related check button in the notification page.
+    buttons = Choices('message', 'none')
+    button_class = models.CharField(choices=buttons, default=buttons.none, max_length=20)
     actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor', on_delete=models.CASCADE)
     actor_object_id = models.CharField(max_length=255)
     actor = GenericForeignKey('actor_content_type', 'actor_object_id')
@@ -321,6 +328,9 @@ class Notification(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
 
     objects = NotificationQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['-unread', '-timestamp']
 
     def __str__(self):
         """
@@ -369,6 +379,7 @@ def notify_handler(verb, **kwargs):
     kwargs.pop('signal', None)
     recipient = kwargs.pop('recipient')
     actor = kwargs.pop('actor')
+    button_class = kwargs.pop('button_class', 'none')
     # Possible cases of optional_objs = [('John', 'target'), ('dictionary', 'action_object')]
     optional_objs = [
         (kwargs.pop(opt, None), opt)
@@ -388,6 +399,7 @@ def notify_handler(verb, **kwargs):
             verb=str(verb),
             description=description,
             timestamp=timestamp,
+            button_class=button_class,
         )
 
         """

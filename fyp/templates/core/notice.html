@@ -1,3 +1,4 @@
+{% load notification_tags %}
 <div class="alert alert-block alert-{{ notice.level }}">
   <a class="close pull-right" href="#">
     <i class="icon-close"></i>
@@ -7,13 +8,32 @@
     <i class="icon-mail{% if notice.unread %}-alt{% endif %}"></i>
     {{ notice.actor }}
     {{ notice.verb }}
+    <!--Three conditions: Only have target, only have action_object, have all.-->
     {% if notice.target %}
-      of {{ notice.target }}
+        {% if notice.action_object %}
+            <!--Have target and action_object-->
+            {{ notice.action_object }}
+            on
+            {{ notice.target }}
+        {% else %}
+            <!--Only have target-->
+            {{ notice.target }}
+        {% endif %}
+    {% else %}
+        {% if notice.action_object %}
+            <!--Only have action object -->
+            {{ notice.action_object }}
+        {% endif %}
     {% endif %}
   </h4>
 
   <p>{{ notice.timesince }} ago</p>
 
-    <br>
+    {% ifequal notice.button_class 'message'%}
+        <!--Does it have a better way to do this?-->
+        <a href="{% url 'core:noti_redirect' notice.id %}" class="btn btn-primary btn-sm">Check</a>
+    {% endifequal %}
+
+    <HR SIZE=10>
 
 </div>

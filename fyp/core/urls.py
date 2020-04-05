@@ -9,6 +9,7 @@ urlpatterns = [
 	path('about/', views.about, name='about'),
 	path('register/', views.register, name='register'),
 	path('redirected/', views.redirected, name='redirected'),
+	path('redirected/notifications/<int:notification_id>', views.view_message_from_notification, name='noti_redirect'),
 	path('professorregister/', views.professor_register, name='proRegister'),
 	path('candidateregister/', views.candidate_register, name='canRegister'),
 	path('logout/', views.user_logout, name='logout'),
@@ -25,5 +26,6 @@ urlpatterns = [
 	path('dashboard/connection/createGroup', views.create_group, name='create_group'),
 	path('view/<int:message_id>', views.view_message, name='view_message'),
 	path('view/redirected/<int:message_id>/', views.save_file, name='save_file_in_message'),
-	path('dashboard/notifications', views.notifications_unread, name='view_notifications'),
+	path('dashboard/notifications/unread', views.notifications_unread, name='view_notifications'),
+	path('dashboard/notifications/all',views.notifications_all, name='all_notifications'),
 ]

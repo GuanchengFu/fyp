@@ -25,6 +25,9 @@ def user_context(context):
 
 @register.simple_tag(takes_context=True)
 def live_notify_badge(context, badge_class='live_notify_badge'):
+    """
+    The takes_context argument means that this function need to refer to the current context of the page.
+    """
     user = user_context(context)
     if not user:
         return ''
@@ -34,8 +37,3 @@ def live_notify_badge(context, badge_class='live_notify_badge'):
     )
     return format_html(html)
 
-
-@register.simple_tag
-def live_notify_list(list_class='live_notify_list'):
-    html = "<ul class='{list_class}'></ul>".format(list_class=list_class)
-    return format_html(html)

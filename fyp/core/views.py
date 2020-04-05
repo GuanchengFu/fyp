@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from core.forms import UserForm, UserProfessorForm, UserCandidateForm, IdentityForm, FileForm, EditFileForm
 from core.forms import sendMessageForm, ComposeForm, GroupForm, AddGroupForm
 from core.helper_functions import generate_time_prefix
-from core.models import File, Message, Group
+from core.models import File, Message, Group, Notification
 from django.core.files import File as File_Django
 import os
 from django.utils import timezone
@@ -548,6 +548,12 @@ def view_message(request, message_id):
 
 
 @login_required
+def view_message_from_notification(request, notification_id):
+    n = Notification.objects.get(id=notification_id)
+    n.mark_as_read()
+    return redirect('core:view_message', message_id=n.action_object.id)
+
+@login_required
 def save_file(request, message_id):
     """
     Save the file which is included in the message.
@@ -599,10 +605,31 @@ def save_file(request, message_id):
 
 @login_required
 def notifications_unread(request, ):
+    """
+    Show all the unread notifications.
+    """
     user = request.user
     unread_list = user.notifications.unread()
     context_dict = {'unread_notifications': unread_list}
     return render(request, 'core/notification.html', context_dict)
+
+
+@login_required
+def notifications_all(request):
+    """
+    Show all the notifications
+    """
+    user = request.user
+    notifications = user.notifications.all()
+    return render(request, 'core/all_notifications.html', {'notifications': notifications})
+
+
+@login_required
+def mark_all_as_read(request):
+    """
+    Mark all notifications for the user as read.
+    """
+
 
 
 
