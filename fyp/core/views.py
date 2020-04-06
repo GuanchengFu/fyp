@@ -4,10 +4,12 @@ from django.urls import reverse
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.views import View
+
 from core.forms import UserForm, UserProfessorForm, UserCandidateForm, IdentityForm, FileForm, EditFileForm
 from core.forms import sendMessageForm, ComposeForm, GroupForm, AddGroupForm
 from core.helper_functions import generate_time_prefix
-from core.models import File, Message, Group, Notification
+from core.models import File, Message, Group, Notification, UserCandidate
 from django.core.files import File as File_Django
 import os
 from django.utils import timezone
@@ -641,6 +643,8 @@ def delete_all_read_notifications(request,):
     for notification in deleted_notifications:
         notification.delete()
     return redirect('core:all_notifications')
+
+
 
 
 
