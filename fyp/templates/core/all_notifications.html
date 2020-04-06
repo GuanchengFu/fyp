@@ -19,11 +19,19 @@
       </div>
     </div>
 
-    <ul class="notifications">
-      {% for notice in notifications %}
-        {% include 'core/notice.html' %}
-      {% endfor %}
-    </ul>
+    {% if notifications %}
+        <a href="{% url 'core:delete_all_read_notifications' %}" class="btn btn-secondary">Delete read notifications</a>
+        <ul class="notifications">
+          {% for notice in notifications %}
+            {% include 'core/notice.html' %}
+          {% endfor %}
+        </ul>
+    {% else %}
+        <h1>
+            You currently don't have any notifications!
+        </h1>
+    {% endif %}
+
 
 
 {% endblock %}

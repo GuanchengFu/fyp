@@ -271,9 +271,23 @@ class Group(models.Model):
 class NotificationQuerySet(models.query.QuerySet):
     """ Notification QuerySet """
 
-    def unread(self, include_deleted=False):
+    def unread(self,):
         """Return only unread items in the current queryset"""
         return self.filter(unread=True)
+
+    def read(self):
+        """Return the read notifications in the queryset."""
+        return self.filter(unread=False)
+
+    def mark_all_as_read(self, recipient=None):
+        """
+        Mark all the notifications in the queryset read.
+        """
+        notifications = self.unread()
+        if recipient:
+            notifications = notifications.filter(recipient=recipient)
+        return notifications.update(unread=False)
+
 
 
 class Notification(models.Model):

@@ -19,11 +19,18 @@
       </div>
     </div>
 
-    <ul class="notifications">
-      {% for notice in unread_notifications %}
-        {% include 'core/notice.html' %}
-      {% endfor %}
-    </ul>
+    {% if unread_notifications %}
+        <a href="{% url 'core:mark_all_as_read' %}" class="btn btn-secondary">Mark all as read</a>
+
+        <ul class="notifications">
+          {% for notice in unread_notifications %}
+            {% include 'core/notice.html' %}
+          {% endfor %}
+        </ul>
+    {% else %}
+        <h2> You don't have any unread notifications!</h2>
+    {% endif %}
+
 
 
 {% endblock %}

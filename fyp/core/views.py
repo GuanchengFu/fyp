@@ -611,7 +611,7 @@ def notifications_unread(request, ):
     user = request.user
     unread_list = user.notifications.unread()
     context_dict = {'unread_notifications': unread_list}
-    return render(request, 'core/notification.html', context_dict)
+    return render(request, 'core/unread_notification.html', context_dict)
 
 
 @login_required
@@ -629,7 +629,18 @@ def mark_all_as_read(request):
     """
     Mark all notifications for the user as read.
     """
+    user = request.user
+    user.notifications.mark_all_as_read()
+    return redirect('core:all_notifications')
 
+
+@login_required
+def delete_all_read_notifications(request,):
+    user = request.user
+    deleted_notifications = user.notifications.read()
+    for notification in deleted_notifications:
+        notification.delete()
+    return redirect('core:all_notifications')
 
 
 

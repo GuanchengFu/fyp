@@ -28,4 +28,6 @@ urlpatterns = [
 	path('view/redirected/<int:message_id>/', views.save_file, name='save_file_in_message'),
 	path('dashboard/notifications/unread', views.notifications_unread, name='view_notifications'),
 	path('dashboard/notifications/all',views.notifications_all, name='all_notifications'),
+	path('dashboard/notifications/mark-all-as-read', views.mark_all_as_read, name='mark_all_as_read'),
+	path('dashboard/notifications/delete-all', views.delete_all_read_notifications, name='delete_all_read_notifications'),
 ]
