@@ -6,7 +6,7 @@ app_name = 'core'
 
 urlpatterns = [
 	path('', views.index, name='index'),
-	path('about/', views.about, name='about'),
+	path('about/', views.AboutView.as_view(), name='about'),
 	path('register/', views.register, name='register'),
 	path('redirected/', views.redirected, name='redirected'),
 	path('redirected/notifications/<int:notification_id>', views.view_message_from_notification, name='noti_redirect'),

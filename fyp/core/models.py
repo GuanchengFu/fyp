@@ -12,6 +12,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.apps import apps
 from core.helper_functions import generate_time_prefix
 from model_utils import Choices
+from django.template.defaultfilters import slugify
 
 # Later on, change the store position of the files so that it looks the same as the way user stores it.
 
@@ -86,7 +87,6 @@ class File(models.Model):
             self.file.name = os.path.dirname(self.file.name) + '/' + new_name
             self.__original_name = self.name
             super().save(*args, **kwargs)
-
 
     class Meta:
         verbose_name_plural = "Files"

@@ -5,16 +5,17 @@ from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.views import View
+from django.views.generic import TemplateView
 
 from core.forms import UserForm, UserProfessorForm, UserCandidateForm, IdentityForm, FileForm, EditFileForm
 from core.forms import sendMessageForm, ComposeForm, GroupForm, AddGroupForm
-from core.helper_functions import generate_time_prefix
-from core.models import File, Message, Group, Notification, UserCandidate
+from core.models import File, Message, Group, Notification
 from django.core.files import File as File_Django
 import os
 from django.utils import timezone
 
 User = get_user_model()
+
 
 
 def index(request):
@@ -47,8 +48,11 @@ def index(request):
             return render(request, 'core/index.html')
 
 
-def about(request):
-    return render(request, 'core/about.html')
+class AboutView(TemplateView):
+    """
+    About page
+    """
+    template_name = 'core/about.html'
 
 
 def redirected(request):
@@ -256,11 +260,10 @@ def upload_file(request):
 def edit_file(request, file_id):
     context = {}
     user = request.user
-    try:
-        file = File.objects.get(id=file_id)
-        context['file'] = file
-    except File.DoesNotExist:
-        context['file'] = None
+    file = get_object_or_404(File, id=file_id)
+    if file.user != user:
+        raise Http404
+    context['file'] = file
 
     if request.method == "POST":
         form = EditFileForm(request.POST, instance=file)
@@ -554,6 +557,7 @@ def view_message_from_notification(request, notification_id):
     n = Notification.objects.get(id=notification_id)
     n.mark_as_read()
     return redirect('core:view_message', message_id=n.action_object.id)
+
 
 @login_required
 def save_file(request, message_id):
