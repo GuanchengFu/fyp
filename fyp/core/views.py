@@ -52,7 +52,7 @@ class AboutView(TemplateView):
     """
     About page
     """
-    template_name = 'core/about.html'
+    template_name = 'core/profile_card.html'
 
 
 def redirected(request):
