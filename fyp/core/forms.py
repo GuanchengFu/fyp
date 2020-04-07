@@ -33,7 +33,7 @@ class UserForm(forms.ModelForm):
 
     class Meta:
         model = get_user_model()
-        fields = ('username', 'email', 'password', 'first_name', 'last_name', 'institution')
+        fields = ('username', 'email', 'password', 'first_name', 'last_name', 'institution', 'self_website',)
 
 
 IDENTITY_CHOICES = [

@@ -52,19 +52,8 @@
             <h2>All the candidates are shown here:</h2><br/>
             <div class="container">
                 <div class="row">
-                    {% for candidate in candidates %}
-                        <div class="col-4">
-                            <div class="card" style="width: 18rem;">
-                                {% if candidate.picture %}
-                                    <img src="{{ candidate.picture.url }}" class="card-img-top" alt="Profile Image">
-                                {% endif %}
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ candidate.user.username }}</h5>
-                                    <a href="#" class="btn btn-primary">Check message</a>
-                                    <a href="#" class="btn btn-danger">Delete</a>
-                                </div>
-                            </div>
-                        </div>
+                    {% for profile in candidates %}
+                        {% include 'core/profile_card.html' %}
                         {% if forloop.counter|divisibleby:3 %}
                 </div>
                 <div class="row">

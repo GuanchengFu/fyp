@@ -129,6 +129,7 @@ class User(AbstractUser):
     is_professor = models.BooleanField('professor status', default=False)
     is_candidate = models.BooleanField('candidate status', default=False)
     institution = models.CharField(blank=True, max_length=40)
+    self_website = models.URLField(blank=True,)
 
     def __str__(self):
         return self.username
@@ -151,7 +152,6 @@ class UserProfessor(models.Model):
     collaborated_professors = models.ManyToManyField('self', related_name='collaborated_professors')
     # picture will be uploaded to MEDIA_ROOT/professor_images
     picture = models.ImageField(upload_to='professor_images', blank=True)
-    self_website = models.URLField(blank=True,)
 
     def __str__(self):
         return self.user.username
