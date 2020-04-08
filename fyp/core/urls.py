@@ -30,4 +30,5 @@ urlpatterns = [
 	path('dashboard/notifications/all',views.notifications_all, name='all_notifications'),
 	path('dashboard/notifications/mark-all-as-read', views.mark_all_as_read, name='mark_all_as_read'),
 	path('dashboard/notifications/delete-all', views.delete_all_read_notifications, name='delete_all_read_notifications'),
+	path('dashboard/connection/add', views.AddNewRelationship.as_view(), name='add_new_relationship'),
 ]

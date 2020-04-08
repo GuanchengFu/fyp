@@ -19,24 +19,6 @@
     </div>
 
     {% if user.is_professor %}
-        {% if collaborated_professors %}
-            <h2>Collaborated professors:</h2>
-                <div class="container">
-                <div class="row">
-                    {% for profile in collaborated_professors %}
-                        {% include 'core/profile_card.html' %}
-                        {% if forloop.counter|divisibleby:3 %}
-                </div>
-                <div class="row">
-
-                        {% endif %}
-                    {% endfor %}
-                </div>
-
-            </div>
-        {% else %}
-            <strong>You currently don't have any collaborated professors.</strong>
-        {% endif %}
         {% if candidates %}
             <h2>All the candidates are shown here:</h2><br/>
             <div class="container">
@@ -99,6 +81,24 @@
         <br>
         <a href="{% url 'core:create_group' %}" class="btn btn-primary">Create group</a>
     {% else %}
-        <h1>Candidate!</h1>
+        {% if professors %}
+            <h1>Related professors are shown below:</h1>
+            <div class="container">
+                <div class="row">
+                    {% for profile in professors %}
+                        {% include 'core/profile_card.html' %}
+                        {% if forloop.counter|divisibleby:3 %}
+                            <br>
+                </div>
+                <div class="row">
+
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+            </div>
+        {% else %}
+            <h1>You currently don't have any related professors.</h1>
+        {% endif %}
     {% endif %}
 {% endblock %}

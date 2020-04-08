@@ -28,3 +28,15 @@ def contain_invalid_char(s):
 		return True
 	if '|' in s:
 		return True
+
+
+def validate_add_user(user, add_user):
+	"""
+	Validate whether the searched user is a validate choice.
+	"""
+	if user.is_candidate:
+		return add_user.is_professor
+	elif user.is_professor:
+		return add_user.is_candidate
+	else:
+		return False

@@ -1,0 +1,31 @@
+{% extends 'core/base.html' %}
+
+{% load staticfiles %}
+
+{% block title_block %}
+    New relation
+{% endblock %}
+
+{% block body_block %}
+    <div class="jumbotron jumbotron-fluid">
+      <div class="container">
+        <h1 class="display-4">Connections</h1>
+        <p class="lead">Check here to see your connections with professors and groups!</p>
+      </div>
+    </div>
+
+    {% if search %}
+        {% if search_success %}
+            {% include 'core/profile_card.html' %}
+        {% else %}
+            <p>The username you input cannot find a valid user!</p>
+        {% endif %}
+    {% endif %}
+
+    <form>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" formmethod="get" class="btn btn-primary">Search</button>
+        <button type="submit" formmethod="post" class="btn btn-primary">Request</button>
+    </form>
+{% endblock %}

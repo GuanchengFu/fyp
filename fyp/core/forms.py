@@ -147,6 +147,15 @@ class AddGroupForm(forms.Form):
                                        label="Choose the group:")
 
 
+class RelationshipForm(forms.Form):
+    """
+    Define a form to add additional relation between candidates and professors.
+    """
+    username = forms.CharField(required=True, max_length=40,
+                               label="Please input the email of the user you want to add:")
+    description = forms.CharField(required=False, max_length=80, label="Include anything to prove your identity:")
+
+
 
 
 

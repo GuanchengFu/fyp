@@ -84,6 +84,14 @@
             </a>
           </li>
 
+
+          <li class="nav-item">
+            <a class="nav-link {% block relationship_tag %} {% endblock %}" href="{% url 'core:add_new_relationship' %}">
+              <span data-feather="users"></span>
+              Relationship
+            </a>
+          </li>
+
           <li class="nav-item">
             <a class="nav-link {% block upload_tag %} {% endblock %}" href="{% url 'core:uploadfile' %}">
               <span data-feather="file-text"></span>

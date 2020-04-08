@@ -4,15 +4,18 @@ from django.urls import reverse
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.generic import TemplateView
 
 from core.forms import UserForm, UserProfessorForm, UserCandidateForm, IdentityForm, FileForm, EditFileForm
-from core.forms import sendMessageForm, ComposeForm, GroupForm, AddGroupForm
+from core.forms import sendMessageForm, ComposeForm, GroupForm, AddGroupForm, RelationshipForm
 from core.models import File, Message, Group, Notification
 from django.core.files import File as File_Django
 import os
 from django.utils import timezone
+from core.helper_functions import validate_add_user
+
 
 User = get_user_model()
 
@@ -648,6 +651,42 @@ def delete_all_read_notifications(request,):
         notification.delete()
     return redirect('core:all_notifications')
 
+
+class AddNewRelationship(View):
+
+    @method_decorator(login_required)
+    def get(self, request,):
+        username = request.GET.get('username', None)
+        description = request.GET.get('description', None)
+        form = RelationshipForm(initial={'username': username,
+                                         'description': description})
+        context = {'form': form}
+        if username:
+            # User has input a username for search
+            context['search'] = True
+            try:
+                add_user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                # The user has input the wrong name.
+                context['search_success'] = False
+            else:
+                # The username is correct for some user.
+                user_is_candidate = request.user.is_candidate
+                if user_is_candidate and add_user.is_professor:
+                    context['search_success'] = True
+                    context['profile'] = add_user.professor
+                elif not user_is_candidate and add_user.is_candidate:
+                    context['search_success'] = True
+                    context['profile'] = add_user.candidate
+                else:
+                    context['search_success'] = False
+            finally:
+                return render(request, 'core/new_relationship.html', context)
+        return render(request, 'core/new_relationship.html', context)
+
+    @method_decorator(login_required)
+    def post(self, request):
+        return render(request, 'core/new_relationship.html', {})
 
 
 
