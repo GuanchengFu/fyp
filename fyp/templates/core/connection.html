@@ -23,19 +23,8 @@
             <h2>Collaborated professors:</h2>
                 <div class="container">
                 <div class="row">
-                    {% for professor in collaborated_professors %}
-                        <div class="col-4">
-                            <div class="card" style="width: 18rem;">
-                                {% if professor.picture %}
-                                    <img src="{{ professor.picture.url }}" class="card-img-top" alt="Profile Image">
-                                {% endif %}
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ professor.user.username }}</h5>
-                                    <a href="#" class="btn btn-primary">Check message</a>
-                                    <a href="#" class="btn btn-danger">Delete</a>
-                                </div>
-                            </div>
-                        </div>
+                    {% for profile in collaborated_professors %}
+                        {% include 'core/profile_card.html' %}
                         {% if forloop.counter|divisibleby:3 %}
                 </div>
                 <div class="row">
@@ -55,6 +44,7 @@
                     {% for profile in candidates %}
                         {% include 'core/profile_card.html' %}
                         {% if forloop.counter|divisibleby:3 %}
+                            <br>
                 </div>
                 <div class="row">
 

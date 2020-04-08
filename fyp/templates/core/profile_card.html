@@ -1,39 +1,42 @@
-<div class="container">
-    <div class="row">
-        <!-- col-md-3 indicates the width of the card. -->
-        <div class="col-md-3 col-md-offset-4 col-sm-6 col-xs-12 profile-badge">
-            <img src="https://dummyimage.com/400x200/e85b27/e85b27">
-            <div class="profile-pic">
-                {% if profile.picture %}
-                    <img src="{{ profile.picture.url }}">
-                {% else %}
-                    <img src="{{ MEDIA_URL }}test.png">
-                {% endif %}
-            </div>
-            <div class="user-detail text-center">
-              <h3>{{profile.user.first_name}}</h3>
-              <h3>{{profile.user.last_name}}</h3>
-              {% if profile.user.institution %}
-                <span data-feather="map-pin"></span><p>{{profile.user.institution}}</p> <br>
-              {% endif %}
-                <span data-feather="mail"></span> <p>{{ profile.user.email }}</p> <br>
-              {% if profile.user.self_website %}
-                  <span data-feather="link"></span><a href="{{ profile.user.self_website }}">{{ profile.user.self_website }}</a>
-                  <br>
-              {% endif %}
-              <button class="btn btn-secondary">Check</button><br>
+<!--Display a profile card for a user.
+    To use: pass in the variable as profile.-->
 
-            </div>
-        </div>
+<!-- col-md-3 indicates the width of the card.
+     This means that the following div will occupy 1/4 screen space for mid screen.
+     1/2 for small screen and all the space for xs screen.-->
+<div class="col-md-3 col-md-offset-4 profile-badge">
+    <img src="https://dummyimage.com/400x200/e85b27/e85b27">
+    <div class="profile-pic">
+        {% if profile.picture %}
+            <img src="{{ profile.picture.url }}">
+        {% else %}
+            <img src="{{ MEDIA_URL }}test.png">
+        {% endif %}
+    </div>
+    <div class="user-detail text-center">
+      <h3>{{profile.user.first_name}}</h3>
+      <h3>{{profile.user.last_name}}</h3>
+      {% if profile.user.institution %}
+        <span data-feather="map-pin"></span><p>{{profile.user.institution}}</p> <br>
+      {% endif %}
+        <span data-feather="mail"></span> <p>{{ profile.user.email }}</p> <br>
+      {% if profile.user.self_website %}
+          <span data-feather="link"></span><a href="{{ profile.user.self_website }}">{{ profile.user.self_website }}</a>
+          <br>
+      {% endif %}
+      <button class="btn btn-secondary">Check</button><br>
     </div>
 </div>
+
 
 <style>
 /* Add style rules here */
 .profile-badge{
-    border:0.5px solid #c1c1c1;
-    padding:5px;
+    border:1px solid #c1c1c1;
+    padding:3px;
     position: relative;
+    /* Add margins between two lines*/
+    margin: 10px 30px 10px 0px;
 }
 .profile-badge img{
     height: 200px;
@@ -52,6 +55,7 @@
 }
 .user-detail p{
     font-size:14px;
+    /* Will not begin at newline automatically. */
     display: inline;
 }
 .user-detail .btn{
