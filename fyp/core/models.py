@@ -313,7 +313,7 @@ class Notification(models.Model):
     """
     # actor
     # This button class is used to generate the related check button in the notification page.
-    buttons = Choices('message', 'none')
+    buttons = Choices('message', 'none', 'relationship_request',)
     button_class = models.CharField(choices=buttons, default=buttons.none, max_length=20)
     actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor', on_delete=models.CASCADE)
     actor_object_id = models.CharField(max_length=255)
@@ -432,6 +432,15 @@ def notify_handler(verb, **kwargs):
         new_notifications.append(newnotify)
 
     return new_notifications
+
+
+class RelationshipRequest(models.Model):
+    sender = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, related_name='requests')
+    recipient = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, related_name='received_requests')
+    description = models.CharField(max_length=80)
+
+    def __str__(self):
+        return 'request'
 
 
 

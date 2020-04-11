@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 from django.db import models
 from django.dispatch import Signal
-from core.models import File, notify_handler, Message
+from core.models import File, notify_handler, Message, RelationshipRequest
 import os
 
 
@@ -40,4 +40,14 @@ def notify_new_message(sender, instance, created, **kwargs):
     if created:
         notify.send(sender, actor=instance.sender, verb='has sent you a', recipient=[instance.receiver],
                     action_object=instance, button_class='message', )
+
+
+@receiver(models.signals.post_save, sender=RelationshipRequest)
+def notify_new_relationship(sender, instance, created, **kwargs):
+    """
+    Username has sent you a request.
+    """
+    if created:
+        notify.send(sender, actor=instance.sender, verb='has sent you a', recipient=[instance.recipient],
+                    action_object=instance, button_class='relationship_request',)
 

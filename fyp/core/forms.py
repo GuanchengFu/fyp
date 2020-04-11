@@ -1,7 +1,7 @@
 from django import forms
 # from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
-from core.models import UserProfessor, UserCandidate, User, File, Message
+from core.models import UserProfessor, UserCandidate, User, File, Message, RelationshipRequest
 from core.fields import CommaSeparatedUserField
 from django.utils.translation import ugettext_lazy as _
 from core.helper_functions import contain_invalid_char
@@ -155,6 +155,51 @@ class RelationshipForm(forms.Form):
                                label="Please input the email of the user you want to add:")
     description = forms.CharField(required=False, max_length=80, label="Include anything to prove your identity:")
 
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        super(RelationshipForm, self).__init__(*args, **kwargs)
+
+    def clean_username(self):
+        data = self.cleaned_data['username']
+        # This may cause some problems.
+        user = self.user
+        try:
+            add_user = User.objects.get(username=data)
+        except User.DoesNotExist:
+            # The user has input the wrong name.
+            raise forms.ValidationError("Cannot find the user with username {0}".format(data))
+        else:
+            # The username is correct for some user.
+            user_is_candidate = user.is_candidate
+            if user_is_candidate and add_user.is_professor:
+                # user is candidate and add_user is professor.
+                if add_user.professor in user.candidate.professor.all():
+                    raise forms.ValidationError("The user has already been added into your lists.")
+                # else:
+                #    return data
+            elif not user_is_candidate and add_user.is_candidate:
+                # user is professor and add_user is candidate
+                if user.professor in add_user.candidate.professor.all():
+                    raise forms.ValidationError("The user has already been added into your lists.")
+            else:
+                if user.is_professor:
+                    raise forms.ValidationError("Professor cannot add other professors as their candidates.")
+                else:
+                    raise forms.ValidationError("Candidate cannot add other candidates as their professors.")
+        return data
+
+    def save(self):
+        sender = self.user
+        print(self.cleaned_data['username'])
+        recipient = User.objects.get(username=self.cleaned_data['username'])
+        description = self.cleaned_data['description']
+        request = RelationshipRequest(
+            sender=sender,
+            recipient=recipient,
+            description=description,
+        )
+        request.save()
+        return request
 
 
 

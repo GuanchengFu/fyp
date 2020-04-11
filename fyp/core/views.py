@@ -653,13 +653,26 @@ def delete_all_read_notifications(request,):
 
 
 class AddNewRelationship(View):
+    """
+    New updates:
+    1. add excuses in the context, so it can display different reasons in the template.
+    2. The user cannot add users which already in their dictionaries.
+    3. post should send a signal at the end of the form.
+    4. The user who receive the signal should have a link to dispose the relationship.
+    """
+
+    def get_form_kwargs(self):
+        kwargs = super(AddNewRelationship, self).get_form_kwargs()
+        print(self.request)
+        kwargs['request'] = self.request
+        return kwargs
 
     @method_decorator(login_required)
     def get(self, request,):
         username = request.GET.get('username', None)
         description = request.GET.get('description', None)
         form = RelationshipForm(initial={'username': username,
-                                         'description': description})
+                                         'description': description}, user=request.user)
         context = {'form': form}
         if username:
             # User has input a username for search
@@ -670,23 +683,24 @@ class AddNewRelationship(View):
                 # The user has input the wrong name.
                 context['search_success'] = False
             else:
-                # The username is correct for some user.
-                user_is_candidate = request.user.is_candidate
-                if user_is_candidate and add_user.is_professor:
-                    context['search_success'] = True
+                context['search_success'] = True
+                if add_user.is_professor:
                     context['profile'] = add_user.professor
-                elif not user_is_candidate and add_user.is_candidate:
-                    context['search_success'] = True
-                    context['profile'] = add_user.candidate
                 else:
-                    context['search_success'] = False
+                    context['profile'] = add_user.candidate
             finally:
                 return render(request, 'core/new_relationship.html', context)
         return render(request, 'core/new_relationship.html', context)
 
     @method_decorator(login_required)
     def post(self, request):
-        return render(request, 'core/new_relationship.html', {})
+        form = RelationshipForm(request.POST, user=request.user)
+        context = {'form': form}
+        if form.is_valid():
+            form.save()
+            return redirect('core:connection')
+        return render(request, 'core/new_relationship.html', context)
+
 
 
 
